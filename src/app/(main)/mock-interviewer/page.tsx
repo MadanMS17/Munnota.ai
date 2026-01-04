@@ -9,17 +9,22 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Bot, Loader2, Send, Sparkles, User, MessageSquare, Star, Mic, Keyboard, Volume2, FlagOff } from 'lucide-react';
+import { Bot, Loader2, Send, Sparkles, User, MessageSquare, Star, Mic, Keyboard, Volume2, FlagOff, FileText } from 'lucide-react';
 import { aiMockInterviewer, AIMockInterviewerOutput } from '@/ai/ai-mock-interviewer';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { Avatar } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { collection, query, orderBy } from 'firebase/firestore';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const setupSchema = z.object({
   jobDescription: z.string().min(50, 'Job description must be at least 50 characters.'),
+  resumeId: z.string().optional(),
 });
 
 const responseSchema = z.object({
@@ -35,8 +40,14 @@ type Message = {
 
 type InterviewMode = 'text' | 'voice';
 
-// SpeechRecognition and SpeechSynthesis types might not be available in Node.js environment
-// We declare them here to avoid TypeScript errors during build.
+type ResumeDoc = {
+    id: string;
+    resumeName: string;
+    resumeUrl: string; // This is a data URI
+    createdAt: any;
+};
+
+
 declare global {
     interface Window {
         SpeechRecognition: any;
@@ -46,20 +57,8 @@ declare global {
 
 export default function MockInterviewerPage() {
   const { user } = useUser();
+  const firestore = useFirestore();
   const { toast } = useToast();
-  const [interviewMode, setInterviewMode] = useState<InterviewMode | null>(null);
-  const [isStarted, setIsStarted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [jobDescription, setJobDescription] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [lastResponse, setLastResponse] = useState<AIMockInterviewerOutput | null>(null);
-  const [questionCount, setQuestionCount] = useState(0);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  // States for voice mode
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const recognitionRef = useRef<any>(null);
 
   const setupForm = useForm<z.infer<typeof setupSchema>>({
     resolver: zodResolver(setupSchema),
@@ -69,7 +68,26 @@ export default function MockInterviewerPage() {
     resolver: zodResolver(responseSchema),
   });
 
-  // Text-to-Speech
+  const [interviewMode, setInterviewMode] = useState<InterviewMode | null>(null);
+  const [isStarted, setIsStarted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [jobDescription, setJobDescription] = useState('');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [lastResponse, setLastResponse] = useState<AIMockInterviewerOutput | null>(null);
+  const [questionCount, setQuestionCount] = useState(0);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const recognitionRef = useRef<any>(null);
+
+  const resumesQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return query(collection(firestore, 'users', user.uid, 'resumes'), orderBy('createdAt', 'desc'));
+  }, [user, firestore]);
+
+  const { data: resumes, isLoading: resumesLoading } = useCollection<ResumeDoc>(resumesQuery);
+
   const speak = (text: string) => {
     if ('speechSynthesis' in window) {
         const utterance = new SpeechSynthesisUtterance(text);
@@ -80,20 +98,18 @@ export default function MockInterviewerPage() {
 
   useEffect(() => {
     if (interviewMode === 'voice' && 'speechSynthesis' in window) {
-      // Ensure any ongoing speech is stopped when component unmounts or mode changes
       return () => window.speechSynthesis.cancel();
     }
   }, [interviewMode]);
 
 
-  // Speech-to-Text setup
   useEffect(() => {
     if (interviewMode !== 'voice') return;
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       toast({ variant: 'destructive', title: 'Unsupported Browser', description: 'Speech recognition is not supported in this browser.' });
-      setInterviewMode('text'); // Fallback to text mode
+      setInterviewMode('text');
       return;
     }
     
@@ -104,16 +120,14 @@ export default function MockInterviewerPage() {
     recognition.lang = 'en-US';
 
     recognition.onresult = (event: any) => {
-      let finalTranscript = '';
+      let interimTranscript = '';
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
+           setTranscript(prev => (prev ? prev + ' ' : '') + event.results[i][0].transcript.trim());
+           responseForm.setValue('userResponse', responseForm.getValues('userResponse') + event.results[i][0].transcript.trim() + ' ');
+        } else {
+            interimTranscript += event.results[i][0].transcript;
         }
-      }
-
-      if (finalTranscript) {
-          setTranscript(prev => (prev ? prev + ' ' : '') + finalTranscript.trim());
-          responseForm.setValue('userResponse', (responseForm.getValues('userResponse') ? responseForm.getValues('userResponse') + ' ' : '') + finalTranscript.trim());
       }
     };
 
@@ -142,8 +156,8 @@ export default function MockInterviewerPage() {
     if (isListening) {
       recognitionRef.current?.stop();
     } else {
-      setTranscript(''); // Reset transcript for new recording
-      responseForm.setValue('userResponse', ''); // Clear form value too
+      setTranscript(''); 
+      responseForm.setValue('userResponse', ''); 
       recognitionRef.current?.start();
     }
     setIsListening(!isListening);
@@ -155,6 +169,18 @@ export default function MockInterviewerPage() {
     }
   }, [messages])
 
+  const dataUriToText = (dataUri: string): string => {
+    const base64 = dataUri.split(',')[1];
+    if (!base64) return '';
+    try {
+        // Use Buffer for Node.js or atob for browser
+        return typeof window !== 'undefined' ? window.atob(base64) : Buffer.from(base64, 'base64').toString('utf-8');
+    } catch (e) {
+        console.error("Failed to decode base64:", e);
+        return ''; // Return empty string on failure
+    }
+  }
+
   const handleStartInterview = async (values: z.infer<typeof setupSchema>) => {
     if (!user) {
       toast({ variant: 'destructive', title: 'Not logged in' });
@@ -162,9 +188,19 @@ export default function MockInterviewerPage() {
     }
     setIsLoading(true);
     setJobDescription(values.jobDescription);
+
+    let resumeText: string | undefined;
+    if (values.resumeId) {
+        const selectedResume = resumes?.find(r => r.id === values.resumeId);
+        if (selectedResume) {
+            resumeText = dataUriToText(selectedResume.resumeUrl);
+        }
+    }
+
     try {
       const result = await aiMockInterviewer({
         jobDescription: values.jobDescription,
+        resumeText: resumeText,
         userResponse: 'Hello, I am ready to start the interview.',
         interviewQuestion: "Let's get started. Please introduce yourself.",
         questionCount: 0,
@@ -283,11 +319,11 @@ export default function MockInterviewerPage() {
       <>
         <PageHeader
           title="AI Mock Interviewer"
-          description={`Mode: ${interviewMode === 'text' ? 'Text-Based' : 'Voice-Based'}. First, provide the job description for the role you're practicing for.`}
+          description={`Mode: ${interviewMode === 'text' ? 'Text-Based' : 'Voice-Based'}. First, provide the job description and optionally select a resume.`}
         />
         <Card className="bg-card/50 backdrop-blur-lg border border-border/20">
           <CardHeader>
-            <CardTitle>Job Description</CardTitle>
+            <CardTitle>Interview Setup</CardTitle>
           </CardHeader>
           <CardContent>
             <Form {...setupForm}>
@@ -305,6 +341,59 @@ export default function MockInterviewerPage() {
                     </FormItem>
                   )}
                 />
+                
+                <FormField
+                    control={setupForm.control}
+                    name="resumeId"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Select a Resume (Optional)</FormLabel>
+                            <FormMessage />
+                             {resumesLoading && <Skeleton className="h-20 w-full" />}
+                            {!resumesLoading && resumes && resumes.length > 0 && (
+                                <FormControl>
+                                    <RadioGroup
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                        className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"
+                                    >
+                                        <FormControl>
+                                            <div className="flex-1">
+                                                <RadioGroupItem value="no-resume" id="no-resume" className="sr-only peer" />
+                                                <Label 
+                                                    htmlFor="no-resume"
+                                                    className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                                                >
+                                                    <FileText className="mb-2 h-6 w-6 opacity-50" />
+                                                    <span>No Resume</span>
+                                                </Label>
+                                            </div>
+                                        </FormControl>
+
+                                        {resumes.map((resume) => (
+                                            <FormControl key={resume.id}>
+                                                <div className="flex-1">
+                                                    <RadioGroupItem value={resume.id} id={resume.id} className="sr-only peer" />
+                                                    <Label 
+                                                        htmlFor={resume.id}
+                                                        className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                                                    >
+                                                        <FileText className="mb-2 h-6 w-6" />
+                                                        <span className="truncate">{resume.resumeName}</span>
+                                                    </Label>
+                                                </div>
+                                            </FormControl>
+                                        ))}
+                                    </RadioGroup>
+                                </FormControl>
+                            )}
+                             {!resumesLoading && (!resumes || resumes.length === 0) && (
+                                <p className="text-sm text-muted-foreground pt-2">You have no saved resumes. You can upload one in the Resume Analyzer.</p>
+                            )}
+                        </FormItem>
+                    )}
+                />
+
                 <Button type="submit" disabled={isLoading} className={cn('animated-gradient-button p-0', isLoading && 'opacity-50')}>
                   <span>
                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
