@@ -53,7 +53,7 @@ export default function SignUpPage() {
     try {
       await createUserWithEmailAndPassword(auth, values.email, values.password);
       toast({ title: 'Success', description: 'Your account has been created.' });
-      router.push('/');
+      router.push('/linkedin-post-generator');
     } catch (error: any) {
       console.error(error);
       toast({

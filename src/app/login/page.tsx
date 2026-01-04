@@ -53,7 +53,7 @@ export default function LoginPage() {
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({ title: 'Success', description: "You're now logged in." });
-      router.push('/');
+      router.push('/linkedin-post-generator');
     } catch (error: any) {
       console.error(error);
       let errorMessage = 'An unexpected error occurred. Please try again.';
