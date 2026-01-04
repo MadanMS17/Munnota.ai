@@ -103,11 +103,11 @@ export default function Home() {
                         Stop guessing what recruiters want to see. Get data-driven insights and enhance your skills.
                     </p>
                 </div>
-                <div className="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                <div className="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {features.map((feature) => (
                         <Link href={feature.href} key={feature.title}>
                             <SpotlightCard
-                            className="p-8 transition-all duration-300 transform hover:-translate-y-2 border-white/10 h-full flex flex-col"
+                            className="p-8 transition-all duration-300 transform hover:-translate-y-2 border-white/10 h-full flex flex-col text-center"
                             spotlightColor="rgba(41, 98, 255, 1)"
                             >
                                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
