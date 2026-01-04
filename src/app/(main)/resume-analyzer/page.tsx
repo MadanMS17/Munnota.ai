@@ -20,6 +20,7 @@ import { addDoc, collection, serverTimestamp, doc, deleteDoc, query, orderBy, li
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const MAX_RESUMES = 2;
 const MAX_FILE_SIZE_MB = 3;
