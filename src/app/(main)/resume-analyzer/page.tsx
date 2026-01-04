@@ -21,6 +21,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 const MAX_RESUMES = 2;
 const MAX_FILE_SIZE_MB = 3;
@@ -319,9 +320,22 @@ export default function ResumeAnalyzerPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" disabled={isAnalyzing}>
-                  {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <BarChart className="mr-2 h-4 w-4" />}
-                  Analyze
+                <Button type="submit" disabled={isAnalyzing} className={cn(
+                    'animated-gradient-button',
+                    isAnalyzing ? 'bg-muted' : 'bg-background'
+                )}>
+                  {isAnalyzing ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <span>Analyzing...</span>
+                    </>
+                    ) : (
+                    <>
+                        <BarChart className="mr-2 h-4 w-4" />
+                        <span>Analyze</span>
+                    </>
+                    )
+                  }
                 </Button>
               </form>
             </Form>
@@ -389,9 +403,7 @@ export default function ResumeAnalyzerPage() {
                 <RadioGroup onValueChange={setResumeToDelete} className="gap-4 py-4">
                     {resumes?.map(resume => (
                          <div key={resume.id} className="flex-1">
-                            <>
-                                <RadioGroupItem value={resume.id} id={`delete-${resume.id}`} className="sr-only peer" />
-                            </>
+                            <RadioGroupItem value={resume.id} id={`delete-${resume.id}`} className="sr-only peer" />
                             <Label 
                                 htmlFor={`delete-${resume.id}`}
                                 className="flex items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-destructive [&:has([data-state=checked])]:border-destructive"

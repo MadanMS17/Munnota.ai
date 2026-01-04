@@ -35,6 +35,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/page-header';
 import { Bot, Clipboard, Loader2, Save } from 'lucide-react';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   projectDetails: z.string().min(20, {
@@ -211,13 +212,21 @@ export default function LinkedInPostGeneratorPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" disabled={isGenerating}>
+                <Button type="submit" disabled={isGenerating} className={cn(
+                    'animated-gradient-button',
+                    isGenerating ? 'bg-muted' : 'bg-background'
+                )}>
                   {isGenerating ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <span>Generating...</span>
+                    </>
                   ) : (
-                    <Bot className="mr-2 h-4 w-4" />
+                    <>
+                      <Bot className="mr-2 h-4 w-4" />
+                      <span>Generate Post</span>
+                    </>
                   )}
-                  Generate Post
                 </Button>
               </form>
             </Form>

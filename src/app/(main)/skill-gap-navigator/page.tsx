@@ -16,6 +16,7 @@ import { Bot, Loader2, Compass, ExternalLink } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   targetRole: z.string().min(3, 'Target role must be at least 3 characters.').default(''),
@@ -176,9 +177,21 @@ export default function SkillGapNavigatorPage() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" disabled={isGenerating} className="w-full">
-                    {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Compass className="mr-2 h-4 w-4" />}
-                    Generate Roadmap
+                  <Button type="submit" disabled={isGenerating} className={cn(
+                      'w-full animated-gradient-button',
+                      isGenerating ? 'bg-muted' : 'bg-background'
+                  )}>
+                    {isGenerating ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <span>Generating Roadmap...</span>
+                        </>
+                    ) : (
+                        <>
+                            <Compass className="mr-2 h-4 w-4" />
+                            <span>Generate Roadmap</span>
+                        </>
+                    )}
                   </Button>
                 </form>
               </Form>
