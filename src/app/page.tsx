@@ -6,6 +6,7 @@ import { AppLogo } from '@/components/app-logo';
 import { ArrowRight, Bot, Compass, FileText, Linkedin } from 'lucide-react';
 import ColorBends from '@/components/color-bends-background';
 import SpotlightCard from '@/components/ui/spotlight-card';
+import { GridScan } from '@/components/ui/grid-scan';
 
 
 
@@ -95,8 +96,22 @@ export default function Home() {
         </section>
 
         {/* Features Section */}
-        <section className="py-20 sm:py-32 bg-background">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="relative py-20 sm:py-32 bg-background overflow-hidden">
+            <div className="absolute inset-0 z-0">
+                <GridScan
+                    sensitivity={0.55}
+                    lineThickness={1}
+                    linesColor="#200040" 
+                    gridScale={0.15}
+                    scanColor="#8e2de2"
+                    scanOpacity={0.4}
+                    enablePost
+                    bloomIntensity={0.2}
+                    chromaticAberration={0.005}
+                    noiseIntensity={0.02}
+                />
+            </div>
+            <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center">
                     <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">The Ultimate Toolkit for Career Success</h2>
                     <p className="mt-6 max-w-3xl mx-auto text-lg text-muted-foreground">
