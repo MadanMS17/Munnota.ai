@@ -15,6 +15,7 @@ import { useUser } from '@/firebase';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
+import { Avatar } from '@/components/ui/avatar';
 
 const setupSchema = z.object({
   jobDescription: z.string().min(50, 'Job description must be at least 50 characters.'),
