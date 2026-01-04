@@ -9,7 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 
 const AIMockInterviewerInputSchema = z.object({
   jobDescription: z.string().describe('The job description for the target role.'),
