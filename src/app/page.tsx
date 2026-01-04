@@ -76,11 +76,11 @@ export default function Home() {
               transparent={false}
             />
           </div>
-          <div className="relative z-20 text-center text-primary-foreground px-4">
+          <div className="relative z-20 text-center text-white px-4">
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight font-headline">
               Land Your Dream Job
             </h1>
-            <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-primary-foreground/80">
+            <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-white/80">
               CareerFlow.ai is your AI co-pilot for navigating the job market. From resumes to interviews, we give you the tools to succeed.
             </p>
             <div className="mt-10">
