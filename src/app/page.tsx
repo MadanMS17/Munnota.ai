@@ -1,17 +1,11 @@
 'use client';
 import { useUser } from '@/firebase';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { AppLogo } from '@/components/app-logo';
-import { ArrowRight, Bot, FileText, Linkedin } from 'lucide-react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { ArrowRight, Bot, Compass, FileText, Linkedin } from 'lucide-react';
+import ColorBends from '@/components/color-bends-background';
+
 
 const features = [
   {
@@ -27,10 +21,10 @@ const features = [
     href: '/resume-analyzer',
   },
   {
-    icon: <Bot className="h-6 w-6" />,
-    title: 'AI Mock Interviewer',
-    description: 'Practice your interview skills with a real-time AI and get instant feedback.',
-    href: '/mock-interviewer',
+    icon: <Compass className="h-6 w-6" />,
+    title: 'Skill Gap Navigator',
+    description: 'Chart your course to a new role with a personalized learning roadmap.',
+    href: '/skill-gap-navigator'
   },
 ];
 
@@ -51,7 +45,7 @@ export default function Home() {
                             <Link href="/login">Sign In</Link>
                         </Button>
                         <Button asChild>
-                            <Link href="/signup">Get Started <ArrowRight className="ml-2" /></Link>
+                            <Link href="/signup">Get Started</Link>
                         </Button>
                     </>
                 )}
@@ -67,18 +61,20 @@ export default function Home() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative flex h-screen min-h-[700px] items-center justify-center pt-20">
-          <div className="absolute inset-0 z-10" />
-          <div className="absolute inset-0 overflow-hidden">
-            <Image
-              src="https://picsum.photos/seed/tech-abstract/1920/1080"
-              alt="Abstract technology background"
-              fill
-              className="object-cover"
-              data-ai-hint="abstract technology"
-              priority
+        <section className="relative flex h-screen min-h-[700px] items-center justify-center overflow-hidden pt-20">
+          <div className="absolute inset-0 z-0">
+            <ColorBends
+              colors={["#ff5c7a", "#8a5cff", "#00ffd1"]}
+              rotation={30}
+              speed={0.3}
+              scale={1.2}
+              frequency={1.4}
+              warpStrength={1.2}
+              mouseInfluence={0.8}
+              parallax={0.6}
+              noise={0.08}
+              transparent={false}
             />
-             <div className="absolute inset-0 bg-black/60" />
           </div>
           <div className="relative z-20 text-center text-primary-foreground px-4">
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight font-headline">
