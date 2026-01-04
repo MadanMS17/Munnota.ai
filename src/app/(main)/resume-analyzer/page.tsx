@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { analyzeResume, AnalyzeResumeOutput } from '@/ai/flows/analyze-resume-against-job-description';
-import { useAuth } from '@/firebase';
+import { useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
@@ -38,7 +38,7 @@ const ScoreCard = ({ title, score, description }: { title: string; score: number
 )
 
 export default function ResumeAnalyzerPage() {
-  const { user } = useAuth();
+  const { user } = useUser();
   const { toast } = useToast();
   const [analysisResult, setAnalysisResult] = useState<AnalyzeResumeOutput | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);

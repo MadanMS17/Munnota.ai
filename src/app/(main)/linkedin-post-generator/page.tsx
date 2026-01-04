@@ -8,7 +8,7 @@ import {
   GenerateLinkedInPostInput,
 } from '@/ai/flows/generate-linkedin-post';
 import { storeAndRecallLinkedInPosts } from '@/ai/flows/store-and-recall-linkedin-posts';
-import { useAuth } from '@/firebase';
+import { useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -46,7 +46,7 @@ const formSchema = z.object({
 });
 
 export default function LinkedInPostGeneratorPage() {
-  const { user } = useAuth();
+  const { user } = useUser();
   const { toast } = useToast();
   const [generatedPost, setGeneratedPost] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
