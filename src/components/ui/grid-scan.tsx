@@ -305,6 +305,18 @@ void main(){
 }
 `;
 
+function isWebGLEnabled() {
+    if (typeof window === 'undefined') {
+        return false;
+    }
+    try {
+        const canvas = document.createElement('canvas');
+        return !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+    } catch (e) {
+        return false;
+    }
+}
+
 export const GridScan: React.FC<GridScanProps> = ({
   enableWebcam = false,
   showPreview = false,
@@ -454,6 +466,11 @@ export const GridScan: React.FC<GridScanProps> = ({
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+
+    if (!isWebGLEnabled()) {
+        console.warn("WebGL is not supported on this device. The GridScan component will not be rendered.");
+        return;
+    }
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     rendererRef.current = renderer;
