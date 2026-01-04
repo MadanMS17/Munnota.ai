@@ -52,19 +52,19 @@ Every post you generate MUST follow this structure to ensure it is effective:
 
 **Tone-Specific Guidelines:**
 
-*   **If `tone` is 'professional':**
+*   **If \`tone\` is 'professional':**
     *   **Voice:** Formal, authoritative, and polished. Focus on business impact and technical excellence.
     *   **Hook Example:** "In enterprise applications, performance is not a feature; it's a requirement."
     *   **Formatting:** Use bullet points with quantifiable results. Avoid excessive emojis.
     *   **CTA Example:** "I'm interested in hearing how other teams have solved similar scalability challenges."
 
-*   **If `tone` is 'casual':**
+*   **If \`tone\` is 'casual':**
     *   **Voice:** Relatable, friendly, and conversational. Share the "aha!" moments and the learning process.
     *   **Hook Example:** "I finally figured out why my React app was re-rendering a dozen times..."
     *   **Formatting:** More personal and story-driven. A few relevant emojis (e.g., 🚀,💡) are appropriate.
     *   **CTA Example:** "What's the one trick that changed the game for you in React? Drop it below! 👇"
 
-*   **If `tone` is 'hype':**
+*   **If \`tone\` is 'hype':**
     *   **Voice:** Energetic, exciting, and bold. Announce the achievement with high energy.
     *   **Hook Example:** "🚀 BIG NEWS! I just launched a project that's going to change how we think about..."
     *   **Formatting:** Use strong words, more emojis (e.g., 🔥, 🤯, ✨), and create a sense of excitement.
