@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AppLogo } from '@/components/app-logo';
 import { ArrowRight, Bot, Compass, FileText, Linkedin } from 'lucide-react';
-import { ColorBendsBackground } from '@/components/color-bends-background';
+import { ColorBends } from '@/components/color-bends-background';
+
 
 
 const features = [
@@ -34,23 +35,23 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex h-20 items-center justify-between">
             <AppLogo />
             <div className="flex items-center gap-2">
                 {!isUserLoading && !user && (
                     <>
-                        <Button variant="ghost" asChild className="text-white hover:bg-white/10 hover:text-white">
+                        <Button variant="ghost" asChild>
                             <Link href="/login">Sign In</Link>
                         </Button>
-                        <Button asChild className="bg-white text-black hover:bg-white/90">
+                        <Button asChild>
                             <Link href="/signup">Get Started</Link>
                         </Button>
                     </>
                 )}
                 {!isUserLoading && user && (
-                    <Button asChild className="bg-white text-black hover:bg-white/90">
+                    <Button asChild>
                         <Link href="/linkedin-post-generator">Go to App <ArrowRight className="ml-2" /></Link>
                     </Button>
                 )}
@@ -61,9 +62,9 @@ export default function Home() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative flex h-screen min-h-[700px] items-center justify-center overflow-hidden">
+        <section className="relative flex h-screen min-h-[700px] items-center justify-center overflow-hidden pt-20">
           <div className="absolute inset-0 z-0">
-            <ColorBendsBackground
+            <ColorBends
               colors={["#4a00e0", "#8e2de2", "#00c6ff"]}
               rotation={30}
               speed={0.2}
