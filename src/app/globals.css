@@ -91,6 +91,9 @@ body {
 .animated-gradient-button {
   position: relative;
   overflow: hidden;
+  padding: 1px;
+  border-radius: 0.5rem; 
+  background-color: transparent;
 }
 
 .animated-gradient-button::before {
@@ -109,17 +112,18 @@ body {
     #44ff9a
   );
   animation: animated-gradient 4s linear infinite;
-  transform-origin: center center;
   transform: translate(-50%, -50%);
-  z-index: 0;
+  z-index: -2; 
 }
 
-.animated-gradient-button .lucide-react, .animated-gradient-button span {
-    position: relative;
-    z-index: 1;
-}
-
-.animated-gradient-button > :first-child {
-    position: relative;
-    z-index: 1;
+.animated-gradient-button > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0.5rem 1rem;
+  background-color: hsl(var(--background));
+  border-radius: calc(0.5rem - 1px);
+  z-index: 1;
 }

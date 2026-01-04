@@ -321,21 +321,23 @@ export default function ResumeAnalyzerPage() {
                   )}
                 />
                 <Button type="submit" disabled={isAnalyzing} className={cn(
-                    'animated-gradient-button',
-                    isAnalyzing ? 'bg-muted' : 'bg-background'
+                    'animated-gradient-button p-0',
+                    isAnalyzing && 'opacity-50'
                 )}>
-                  {isAnalyzing ? (
-                    <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        <span>Analyzing...</span>
-                    </>
-                    ) : (
-                    <>
-                        <BarChart className="mr-2 h-4 w-4" />
-                        <span>Analyze</span>
-                    </>
-                    )
-                  }
+                  <span>
+                    {isAnalyzing ? (
+                      <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <span>Analyzing...</span>
+                      </>
+                      ) : (
+                      <>
+                          <BarChart className="mr-2 h-4 w-4" />
+                          <span>Analyze</span>
+                      </>
+                      )
+                    }
+                  </span>
                 </Button>
               </form>
             </Form>

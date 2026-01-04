@@ -213,20 +213,22 @@ export default function LinkedInPostGeneratorPage() {
                   )}
                 />
                 <Button type="submit" disabled={isGenerating} className={cn(
-                    'animated-gradient-button',
-                    isGenerating ? 'bg-muted' : 'bg-background'
+                    'animated-gradient-button p-0',
+                    isGenerating && 'opacity-50'
                 )}>
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      <span>Generating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Bot className="mr-2 h-4 w-4" />
-                      <span>Generate Post</span>
-                    </>
-                  )}
+                  <span>
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <span>Generating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Bot className="mr-2 h-4 w-4" />
+                        <span>Generate Post</span>
+                      </>
+                    )}
+                  </span>
                 </Button>
               </form>
             </Form>

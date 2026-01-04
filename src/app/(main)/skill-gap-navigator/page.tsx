@@ -178,20 +178,22 @@ export default function SkillGapNavigatorPage() {
                     )}
                   />
                   <Button type="submit" disabled={isGenerating} className={cn(
-                      'w-full animated-gradient-button',
-                      isGenerating ? 'bg-muted' : 'bg-background'
+                      'w-full animated-gradient-button p-0',
+                      isGenerating && 'opacity-50'
                   )}>
-                    {isGenerating ? (
-                        <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            <span>Generating Roadmap...</span>
-                        </>
-                    ) : (
-                        <>
-                            <Compass className="mr-2 h-4 w-4" />
-                            <span>Generate Roadmap</span>
-                        </>
-                    )}
+                    <span>
+                      {isGenerating ? (
+                          <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              <span>Generating Roadmap...</span>
+                          </>
+                      ) : (
+                          <>
+                              <Compass className="mr-2 h-4 w-4" />
+                              <span>Generate Roadmap</span>
+                          </>
+                      )}
+                    </span>
                   </Button>
                 </form>
               </Form>
