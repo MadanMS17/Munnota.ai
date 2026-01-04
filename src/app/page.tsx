@@ -103,14 +103,14 @@ export default function Home() {
                         Stop guessing what recruiters want to see. Get data-driven insights and AI-powered tools to build a winning application.
                     </p>
                 </div>
-                <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                     {features.map((feature) => (
                         <SpotlightCard 
                           key={feature.title} 
-                          className="p-8 transition-all duration-300 transform hover:-translate-y-2"
+                          className="p-8 transition-all duration-300 transform hover:-translate-y-2 border-white/10"
                           spotlightColor="rgba(41, 98, 255, 0.2)"
                         >
-                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                                 {feature.icon}
                             </div>
                             <h3 className="mt-6 text-xl font-bold">{feature.title}</h3>
