@@ -253,6 +253,18 @@ function hexToVec3(hex: string): Vector3 {
   return new Vector3(r / 255, g / 255, b / 255);
 }
 
+function isWebGLEnabled() {
+    if (typeof window === 'undefined') {
+        return false;
+    }
+    try {
+        const canvas = document.createElement('canvas');
+        return !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+    } catch (e) {
+        return false;
+    }
+}
+
 export default function FloatingLines({
   linesGradient,
   enabledWaves = ['top', 'middle', 'bottom'],
@@ -301,7 +313,12 @@ export default function FloatingLines({
   const bottomLineDistance = enabledWaves.includes('bottom') ? getLineDistance('bottom') * 0.01 : 0.01;
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !isWebGLEnabled()) {
+        if (!isWebGLEnabled()) {
+            console.warn("WebGL is not supported on this device. The FloatingLines component will not be rendered.");
+        }
+        return;
+    }
 
     const scene = new Scene();
 
@@ -457,7 +474,7 @@ export default function FloatingLines({
     renderLoop();
 
     return () => {
-      cancelAnimationFrame(raf);
+      if (raf) cancelAnimationFrame(raf);
       if (ro && containerRef.current) {
         ro.disconnect();
       }
