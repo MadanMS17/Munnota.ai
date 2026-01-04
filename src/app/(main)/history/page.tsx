@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
-import { db } from '@/config/firebase';
-import { useAuth } from '@/hooks/use-auth';
+import { useFirestore, useAuth } from '@/firebase';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -21,6 +20,7 @@ interface Post {
 
 export default function HistoryPage() {
   const { user } = useAuth();
+  const firestore = useFirestore();
   const { toast } = useToast();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +33,7 @@ export default function HistoryPage() {
       }
       setLoading(true);
       try {
-        const postsRef = collection(db, 'posts', user.uid, 'linkedin_posts');
+        const postsRef = collection(firestore, 'posts', user.uid, 'linkedin_posts');
         const q = query(postsRef, orderBy('timestamp', 'desc'));
         const querySnapshot = await getDocs(q);
         const fetchedPosts: Post[] = [];
@@ -58,7 +58,7 @@ export default function HistoryPage() {
       }
     }
     fetchPosts();
-  }, [user, toast]);
+  }, [user, toast, firestore]);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -123,3 +123,5 @@ export default function HistoryPage() {
     </>
   );
 }
+
+    

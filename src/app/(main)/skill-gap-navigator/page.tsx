@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { generateLearningRoadmap, SkillGapNavigatorOutput } from '@/ai/flows/skill-gap-navigator';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -153,3 +153,5 @@ export default function SkillGapNavigatorPage() {
     </>
   );
 }
+
+    

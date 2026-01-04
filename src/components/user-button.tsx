@@ -6,8 +6,7 @@ import {
   signOut,
 } from 'firebase/auth';
 import { LogIn, LogOut, User as UserIcon } from 'lucide-react';
-import { useAuth } from '@/hooks/use-auth';
-import { auth } from '@/config/firebase';
+import { useAuth, useFirebase } from '@/firebase';
 import { Button } from './ui/button';
 import {
   DropdownMenu,
@@ -21,7 +20,8 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Skeleton } from './ui/skeleton';
 
 export function UserButton() {
-  const { user, loading } = useAuth();
+  const { user, isUserLoading: loading } = useAuth();
+  const { auth } = useFirebase();
 
   const handleSignIn = async () => {
     const provider = new GoogleAuthProvider();
@@ -89,3 +89,5 @@ export function UserButton() {
     </DropdownMenu>
   );
 }
+
+    

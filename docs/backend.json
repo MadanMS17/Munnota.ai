@@ -208,8 +208,7 @@
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "google.com"
     ]
   },
   "firestore": {
@@ -314,3 +313,4 @@
     "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging, following the principles of Authorization Independence, Clarity of Intent, DBAC, and QAPs. It leverages Structural Segregation and Access Modeling to create a robust and maintainable system.\n\n**Authorization Independence:**  The design avoids hierarchical authorization dependencies by using path-based ownership and denormalization. All user-related data (LinkedInPosts, ResumeAnalysis, SkillGaps, MockInterviews) is stored under the `/users/{userId}` path, eliminating the need for `get()` calls in security rules to check parent document properties. This approach enables atomic operations (transactions/batches) and simplifies security rule logic.  Since all entities are owned by the user, no membership maps are needed. All data access is based on `request.auth.uid == userId`.\n\n**Structural Segregation:**  Each collection stores only documents with the same security requirements.  All data stored under `/users/{userId}` is private to the user identified by `userId`. This segregation drastically simplifies security rules.\n\n**Access Modeling:**  The structure uses path-based ownership for user-owned data. Each entity associated with a user (LinkedInPost, ResumeAnalysis, SkillGap, MockInterview) is stored as a subcollection under the `/users/{userId}` path.  This structure makes the intent very explicit:  only the user with the matching `uid` can access data under their respective `/users/{userId}` path. There is no need for `get()` calls in security rules because all data belongs to the user.\n\n**QAPs (Rules are not Filters):**  The structure supports secure `list` operations. Because all documents in a collection share the same security requirements (all data under `/users/{userId}` belongs to that user), listing data is secure and efficient. Rules do not act as filters, as only the authenticated user can access their data.\n\n**Data Clarity and Predictability:** The schema explicitly defines the structure of each document, using semantic naming and consistent data types. This approach enhances debuggability and maintainability."
   }
 }
+    

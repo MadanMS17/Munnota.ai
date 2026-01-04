@@ -8,7 +8,7 @@ import {
   GenerateLinkedInPostInput,
 } from '@/ai/flows/generate-linkedin-post';
 import { storeAndRecallLinkedInPosts } from '@/ai/flows/store-and-recall-linkedin-posts';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -256,3 +256,5 @@ export default function LinkedInPostGeneratorPage() {
     </>
   );
 }
+
+    
