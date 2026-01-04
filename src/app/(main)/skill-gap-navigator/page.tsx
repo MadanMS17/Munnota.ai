@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/page-header';
 import { Bot, Loader2, Compass } from 'lucide-react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formSchema = z.object({
   targetRole: z.string().min(3, 'Target role must be at least 3 characters.'),
@@ -54,31 +54,6 @@ export default function SkillGapNavigatorPage() {
       setIsGenerating(false);
     }
   }
-  
-  const renderRoadmap = (text: string) => {
-    const weeks = text.split('**Week').slice(1).map(weekText => `**Week${weekText}`);
-    return (
-      <Accordion type="single" collapsible className="w-full" defaultValue="item-0">
-        {weeks.map((weekContent, index) => {
-          const titleMatch = weekContent.match(/\*\*Week \d+: ([^\*]+)\*\*/);
-          const title = titleMatch ? titleMatch[1].trim() : `Week ${index + 1}`;
-          
-          return (
-            <AccordionItem key={index} value={`item-${index}`}>
-              <AccordionTrigger className="text-lg font-semibold text-primary">Week {index + 1}: {title}</AccordionTrigger>
-              <AccordionContent>
-                <div className="prose prose-invert max-w-none text-muted-foreground whitespace-pre-wrap">
-                  {weekContent.split('\n').map((line, i) => (
-                    <p key={i} dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          )
-        })}
-      </Accordion>
-    );
-  };
 
   return (
     <>
@@ -145,7 +120,11 @@ export default function SkillGapNavigatorPage() {
                 </div>
               )}
               {roadmap ? (
-                 renderRoadmap(roadmap.learningRoadmap)
+                 <ScrollArea className="h-[60vh] w-full">
+                    <pre className="whitespace-pre-wrap text-sm text-foreground p-4 bg-muted/20 rounded-md font-sans">
+                        {roadmap.learningRoadmap}
+                    </pre>
+                 </ScrollArea>
               ) : !isGenerating && (
                 <div className="flex flex-col items-center justify-center h-full pt-16 text-center">
                     <Compass className="h-12 w-12 text-muted-foreground" />
