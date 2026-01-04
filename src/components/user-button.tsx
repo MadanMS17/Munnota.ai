@@ -16,10 +16,16 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Skeleton } from './ui/skeleton';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
 
 export function UserButton({ className }: { className?: string }) {
   const { user, isUserLoading: loading } = useUser();
   const { auth } = useFirebase();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -29,7 +35,7 @@ export function UserButton({ className }: { className?: string }) {
     }
   };
 
-  if (loading) {
+  if (!isClient || loading) {
     return <Skeleton className={cn("h-10 w-10 rounded-full", className)} />;
   }
 
