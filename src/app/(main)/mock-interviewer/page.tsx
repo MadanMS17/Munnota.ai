@@ -22,7 +22,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const setupSchema = z.object({
+const setupSchemaBase = z.object({
   jobDescription: z.string().min(50, 'Job description must be at least 50 characters.'),
   resumeId: z.string().optional(),
 });
@@ -59,15 +59,7 @@ export default function MockInterviewerPage() {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
-
-  const setupForm = useForm<z.infer<typeof setupSchema>>({
-    resolver: zodResolver(setupSchema),
-  });
-
-  const responseForm = useForm<z.infer<typeof responseSchema>>({
-    resolver: zodResolver(responseSchema),
-  });
-
+  
   const [interviewMode, setInterviewMode] = useState<InterviewMode | null>(null);
   const [isStarted, setIsStarted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -80,13 +72,34 @@ export default function MockInterviewerPage() {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<any>(null);
-
+  
   const resumesQuery = useMemoFirebase(() => {
-    if (!user || !firestore) return null;
-    return query(collection(firestore, 'users', user.uid, 'resumes'), orderBy('createdAt', 'desc'));
-  }, [user, firestore]);
+      if (!user || !firestore) return null;
+      return query(collection(firestore, 'users', user.uid, 'resumes'), orderBy('createdAt', 'desc'));
+    }, [user, firestore]);
 
   const { data: resumes, isLoading: resumesLoading } = useCollection<ResumeDoc>(resumesQuery);
+
+  const setupSchema = setupSchemaBase.refine(
+    (data) => {
+      if (resumes && resumes.length > 0) {
+        return !!data.resumeId;
+      }
+      return true;
+    },
+    {
+      message: 'You must select a resume for a personalized interview.',
+      path: ['resumeId'],
+    }
+  );
+
+  const setupForm = useForm<z.infer<typeof setupSchema>>({
+    resolver: zodResolver(setupSchema),
+  });
+
+  const responseForm = useForm<z.infer<typeof responseSchema>>({
+    resolver: zodResolver(responseSchema),
+  });
 
   const speak = (text: string) => {
     if ('speechSynthesis' in window) {
@@ -120,16 +133,17 @@ export default function MockInterviewerPage() {
     recognition.lang = 'en-US';
 
     recognition.onresult = (event: any) => {
-      let interimTranscript = '';
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-           setTranscript(prev => (prev ? prev + ' ' : '') + event.results[i][0].transcript.trim());
-           responseForm.setValue('userResponse', responseForm.getValues('userResponse') + event.results[i][0].transcript.trim() + ' ');
-        } else {
-            interimTranscript += event.results[i][0].transcript;
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript.trim() + ' ';
+          }
         }
-      }
-    };
+        if (finalTranscript) {
+            setTranscript(prev => (prev ? prev + finalTranscript : finalTranscript));
+            responseForm.setValue('userResponse', responseForm.getValues('userResponse') + finalTranscript);
+        }
+      };
 
     recognition.onend = () => {
       setIsListening(false);
@@ -342,57 +356,47 @@ export default function MockInterviewerPage() {
                   )}
                 />
                 
-                <FormField
-                    control={setupForm.control}
-                    name="resumeId"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Select a Resume (Optional)</FormLabel>
-                            <FormMessage />
-                             {resumesLoading && <Skeleton className="h-20 w-full" />}
-                            {!resumesLoading && resumes && resumes.length > 0 && (
-                                <FormControl>
-                                    <RadioGroup
-                                        onValueChange={field.onChange}
-                                        defaultValue={field.value}
-                                        className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"
-                                    >
-                                        <FormControl>
-                                            <div className="flex-1">
-                                                <RadioGroupItem value="no-resume" id="no-resume" className="sr-only peer" />
-                                                <Label 
-                                                    htmlFor="no-resume"
-                                                    className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
-                                                >
-                                                    <FileText className="mb-2 h-6 w-6 opacity-50" />
-                                                    <span>No Resume</span>
-                                                </Label>
-                                            </div>
-                                        </FormControl>
+                {resumes && resumes.length > 0 && (
+                  <FormField
+                      control={setupForm.control}
+                      name="resumeId"
+                      render={({ field }) => (
+                          <FormItem>
+                              <FormLabel>Select a Resume</FormLabel>
+                              <FormMessage />
+                              {resumesLoading && <Skeleton className="h-20 w-full" />}
+                              {!resumesLoading && (
+                                  <FormControl>
+                                      <RadioGroup
+                                          onValueChange={field.onChange}
+                                          defaultValue={field.value}
+                                          className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"
+                                      >
+                                          {resumes.map((resume) => (
+                                              <FormControl key={resume.id}>
+                                                  <div className="flex-1">
+                                                      <RadioGroupItem value={resume.id} id={resume.id} className="sr-only peer" />
+                                                      <Label 
+                                                          htmlFor={resume.id}
+                                                          className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                                                      >
+                                                          <FileText className="mb-2 h-6 w-6" />
+                                                          <span className="truncate">{resume.resumeName}</span>
+                                                      </Label>
+                                                  </div>
+                                              </FormControl>
+                                          ))}
+                                      </RadioGroup>
+                                  </FormControl>
+                              )}
+                          </FormItem>
+                      )}
+                  />
+                )}
+                 {resumes && resumes.length === 0 && !resumesLoading && (
+                    <p className="text-sm text-muted-foreground pt-2">No resumes found. The interview will be based only on the job description. You can upload a resume in the Resume Analyzer for a more personalized experience.</p>
+                )}
 
-                                        {resumes.map((resume) => (
-                                            <FormControl key={resume.id}>
-                                                <div className="flex-1">
-                                                    <RadioGroupItem value={resume.id} id={resume.id} className="sr-only peer" />
-                                                    <Label 
-                                                        htmlFor={resume.id}
-                                                        className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
-                                                    >
-                                                        <FileText className="mb-2 h-6 w-6" />
-                                                        <span className="truncate">{resume.resumeName}</span>
-                                                    </Label>
-                                                </div>
-                                            </FormControl>
-                                        ))}
-                                    </RadioGroup>
-                                </FormControl>
-                            )}
-                             {!resumesLoading && (!resumes || resumes.length === 0) && (
-                                <p className="text-sm text-muted-foreground pt-2">You have no saved resumes. You can upload one in the Resume Analyzer.</p>
-                            )}
-                        </FormItem>
-                    )}
-                />
 
                 <Button type="submit" disabled={isLoading} className={cn('animated-gradient-button p-0', isLoading && 'opacity-50')}>
                   <span>
