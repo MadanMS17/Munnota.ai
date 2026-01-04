@@ -102,17 +102,17 @@ export default function MockInterviewerPage() {
     recognition.lang = 'en-US';
 
     recognition.onresult = (event: any) => {
-      let interimTranscript = '';
       let finalTranscript = '';
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
           finalTranscript += event.results[i][0].transcript;
-        } else {
-          interimTranscript += event.results[i][0].transcript;
         }
       }
-      setTranscript(transcript + finalTranscript + interimTranscript);
-      responseForm.setValue('userResponse', transcript + finalTranscript + interimTranscript);
+
+      if (finalTranscript) {
+          setTranscript(prev => (prev ? prev + ' ' : '') + finalTranscript.trim());
+          responseForm.setValue('userResponse', (responseForm.getValues('userResponse') ? responseForm.getValues('userResponse') + ' ' : '') + finalTranscript.trim());
+      }
     };
 
     recognition.onend = () => {
@@ -120,9 +120,11 @@ export default function MockInterviewerPage() {
     };
 
     recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
+        if (event.error !== 'aborted') {
+            console.error('Speech recognition error:', event.error);
+            toast({ variant: 'destructive', title: 'Recognition Error', description: event.error });
+        }
         setIsListening(false);
-        toast({ variant: 'destructive', title: 'Recognition Error', description: event.error });
     }
 
     return () => {
@@ -131,7 +133,7 @@ export default function MockInterviewerPage() {
         }
     }
 
-  }, [interviewMode, toast, transcript, responseForm]);
+  }, [interviewMode, toast, responseForm]);
 
 
   const toggleListening = () => {
@@ -139,6 +141,7 @@ export default function MockInterviewerPage() {
       recognitionRef.current?.stop();
     } else {
       setTranscript(''); // Reset transcript for new recording
+      responseForm.setValue('userResponse', ''); // Clear form value too
       recognitionRef.current?.start();
     }
     setIsListening(!isListening);
@@ -356,7 +359,18 @@ export default function MockInterviewerPage() {
                                 <Mic className="h-8 w-8" />
                            </Button>
                            <p className="text-sm text-muted-foreground h-4">{isListening ? 'Listening...' : 'Click mic to speak'}</p>
-                           <Textarea value={transcript} readOnly className="mt-2 bg-muted/20" placeholder="Your transcribed response will appear here..." />
+                           <FormField
+                                control={responseForm.control}
+                                name="userResponse"
+                                render={({ field }) => (
+                                    <FormItem className="w-full">
+                                        <FormControl>
+                                            <Textarea {...field} readOnly className="mt-2 bg-muted/20" placeholder="Your transcribed response will appear here..." />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
                     )}
                     <Button type="submit" size="icon" disabled={isLoading} className="h-auto aspect-square p-2 self-stretch">
