@@ -8,7 +8,7 @@ import SpotlightCard from '@/components/ui/spotlight-card';
 import dynamic from 'next/dynamic';
 
 const FloatingLines = dynamic(() => import('@/components/ui/floating-lines'), { ssr: false });
-const GridScan = dynamic(() => import('@/components/ui/grid-scan'), { ssr: false });
+const GridScan = dynamic(() => import('@/components/ui/grid-scan').then(mod => mod.GridScan), { ssr: false });
 
 
 const features = [
