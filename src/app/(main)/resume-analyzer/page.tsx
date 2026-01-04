@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { analyzeResume, AnalyzeResumeOutput } from '@/ai/flows/analyze-resume-against-job-description';
 import { useUser, useFirestore, useCollection } from '@/firebase';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,6 +19,7 @@ import { Separator } from '@/components/ui/separator';
 import { addDoc, collection, serverTimestamp, doc, deleteDoc, query, orderBy, limit, writeBatch } from 'firebase/firestore';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 const MAX_RESUMES = 2;
 const MAX_FILE_SIZE_MB = 3;
@@ -411,3 +412,5 @@ export default function ResumeAnalyzerPage() {
     </>
   );
 }
+
+    
