@@ -278,12 +278,12 @@ export default function HistoryPage() {
                     <Accordion type="single" collapsible className="w-full" key={analysis.id}>
                         <AccordionItem value={analysis.id}>
                             <AccordionTrigger className="text-md font-semibold hover:no-underline text-left p-4 rounded-lg bg-muted/30 border">
-                                <div className="flex justify-between items-center w-full">
-                                    <div className="w-full overflow-hidden">
+                                <div className="flex flex-wrap sm:flex-nowrap justify-between items-center w-full gap-x-4 gap-y-2">
+                                    <div className="flex-grow min-w-0">
                                         <p className="font-semibold">Overall Score: <span className="text-primary">{analysis.overallScore}/100</span></p>
                                         <p className="text-sm text-muted-foreground truncate">For job: {analysis.jobDescription}</p>
                                     </div>
-                                    <p className="text-sm text-muted-foreground flex-shrink-0 ml-4">
+                                    <p className="text-sm text-muted-foreground flex-shrink-0 whitespace-nowrap">
                                         {formatDistanceToNow(analysis.analysisDate, { addSuffix: true })}
                                     </p>
                                 </div>
