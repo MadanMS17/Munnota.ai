@@ -19,18 +19,16 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Button } from './ui/button';
-import { UserButton } from './user-button';
 import { AppLogo } from './app-logo';
 import { cn } from '@/lib/utils';
-import { useUser } from '@/firebase';
 
 
 const navItems = [
-  { href: '/linkedin-post-generator', icon: Linkedin, label: 'LinkedIn Post Generator' },
-  { href: '/resume-analyzer', icon: FileText, label: 'Resume Analyzer' },
-  { href: '/skill-gap-navigator', icon: BarChart2, label: 'Skill Gap Navigator' },
-  { href: '/mock-interviewer', icon: BotMessageSquare, label: 'AI Mock Interviewer' },
-  { href: '/history', icon: History, label: 'History' },
+  { href: '/linkedin-post-generator', icon: Linkedin, label: 'LinkedIn Post Generator', className: 'h-6 w-6' },
+  { href: '/resume-analyzer', icon: FileText, label: 'Resume Analyzer', className: 'h-5 w-5' },
+  { href: '/skill-gap-navigator', icon: BarChart2, label: 'Skill Gap Navigator', className: 'h-6 w-6' },
+  { href: '/mock-interviewer', icon: BotMessageSquare, label: 'AI Mock Interviewer', className: 'h-6 w-6' },
+  { href: '/history', icon: History, label: 'History', className: 'h-5 w-5' },
 ];
 
 export function MainSidebar() {
@@ -52,7 +50,7 @@ export function MainSidebar() {
                   : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
               )}
           >
-              <item.icon className="h-5 w-5 mb-1" />
+              <item.icon className={cn("mb-1", item.className)} />
               <span className="text-center leading-tight">{line1}</span>
               <span className="text-center leading-tight">{line2}</span>
           </Link>
@@ -84,12 +82,11 @@ export function MainSidebar() {
             </SheetTrigger>
             <SheetContent side="left" className="w-72 flex flex-col p-0">
                 <SheetHeader className='p-4 border-b'>
-                  <SheetTitle className="sr-only">Features Menu</SheetTitle>
                   <Link href="/">
                       <AppLogo />
                   </Link>
                 </SheetHeader>
-                <nav className="flex-1 space-y-2 px-4">
+                <nav className="flex-1 space-y-2 px-4 py-4">
                   {navItems.map((item) => (
                     <Link
                       key={item.href}
