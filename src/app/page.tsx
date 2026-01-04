@@ -1,10 +1,10 @@
 'use client';
-import { useAuth } from '@/firebase';
+import { useUser } from '@/firebase';
 import { redirect } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function Home() {
-  const { user, isUserLoading } = useAuth();
+  const { user, isUserLoading } = useUser();
 
   useEffect(() => {
     if (!isUserLoading && !user) {
