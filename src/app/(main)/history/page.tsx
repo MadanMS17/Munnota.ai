@@ -283,7 +283,7 @@ export default function HistoryPage() {
                                         <p className="font-semibold">Overall Score: <span className="text-primary">{analysis.overallScore}/100</span></p>
                                         <p className="text-sm text-muted-foreground truncate">For job: {analysis.jobDescription}</p>
                                     </div>
-                                    <p className="text-sm text-muted-foreground flex-shrink-0 whitespace-nowrap mt-2 sm:mt-0">
+                                    <p className="text-sm text-muted-foreground flex-shrink-0 mt-2 sm:mt-0">
                                         {formatDistanceToNow(analysis.analysisDate, { addSuffix: true })}
                                     </p>
                                 </div>
