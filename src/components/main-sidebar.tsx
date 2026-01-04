@@ -25,10 +25,10 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/linkedin-post-generator', icon: Linkedin, label: 'LinkedIn Post Generator', className: 'h-6 w-6' },
-  { href: '/resume-analyzer', icon: FileText, label: 'Resume Analyzer', className: 'h-5 w-5' },
+  { href: '/resume-analyzer', icon: FileText, label: 'Resume Analyzer', className: 'h-6 w-6' },
   { href: '/skill-gap-navigator', icon: BarChart2, label: 'Skill Gap Navigator', className: 'h-6 w-6' },
   { href: '/mock-interviewer', icon: BotMessageSquare, label: 'AI Mock Interviewer', className: 'h-6 w-6' },
-  { href: '/history', icon: History, label: 'History', className: 'h-5 w-5' },
+  { href: '/history', icon: History, label: 'History', className: 'h-6 w-6' },
 ];
 
 export function MainSidebar() {
@@ -63,11 +63,9 @@ export function MainSidebar() {
   return (
     <>
       {/* Desktop Feature Sidebar */}
-      <aside className="hidden lg:flex sticky top-0 h-screen">
-          <div className="flex flex-col items-center justify-center gap-4 h-full p-4">
-              <div className="flex flex-col items-center justify-center gap-4 h-auto p-4 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg">
-                {navLinks}
-              </div>
+      <aside className="hidden lg:flex fixed left-4 top-1/2 -translate-y-1/2 z-40">
+          <div className="flex flex-col items-center justify-center gap-4 h-auto p-4 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg">
+            {navLinks}
           </div>
       </aside>
       
