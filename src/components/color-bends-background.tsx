@@ -113,7 +113,7 @@ void main() {
 }
 `;
 
-export default function ColorBends({
+export function ColorBendsBackground({
   className,
   style,
   rotation = 45,
