@@ -64,11 +64,11 @@ export function MainSidebar() {
     <>
       {/* Desktop Feature Sidebar */}
       <aside className="hidden lg:flex sticky top-0 h-screen">
-          <div className="flex flex-col items-center justify-center gap-4 h-full p-4">
+        <div className="flex flex-col items-center justify-center gap-4 h-full p-4">
               <div className="flex flex-col items-center justify-center gap-4 h-auto p-4 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg">
                 {navLinks}
               </div>
-          </div>
+        </div>
       </aside>
       
       {/* Mobile Feature Trigger */}
