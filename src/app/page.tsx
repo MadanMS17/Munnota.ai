@@ -8,6 +8,7 @@ import dynamic from 'next/dynamic';
 
 const FloatingLines = dynamic(() => import('@/components/ui/floating-lines'), { ssr: false });
 const GridScan = dynamic(() => import('@/components/ui/grid-scan').then(mod => mod.GridScan), { ssr: false });
+const Particles = dynamic(() => import('@/components/ui/particles'), { ssr: false });
 
 
 const features = [
@@ -123,6 +124,16 @@ export default function Home() {
 
         {/* FOMO Section */}
         <section className="relative py-20 sm:py-32 overflow-hidden">
+            <Particles
+                particleColors={['#2962FF', '#39FF14']}
+                particleCount={200}
+                particleSpread={15}
+                speed={0.1}
+                particleBaseSize={2}
+                moveParticlesOnHover={true}
+                alphaParticles={true}
+                disableRotation={false}
+              />
             <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <Zap className="mx-auto h-16 w-16 text-primary animate-pulse" />
                 <h2 className="mt-6 text-4xl sm:text-5xl font-bold tracking-tight text-white">
