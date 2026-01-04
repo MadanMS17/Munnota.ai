@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Bot, Loader2, Send, Sparkles, User, MessageSquare, Star, Mic, Keyboard, Volume2, FlagOff, FileText } from 'lucide-react';
+import { Bot, Loader2, Send, Sparkles, User, MessageSquare, Star, Mic, Keyboard, Volume2, FlagOff, FileText, Save } from 'lucide-react';
 import { aiMockInterviewer, AIMockInterviewerOutput } from '@/ai/ai-mock-interviewer';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { cn } from '@/lib/utils';
@@ -17,7 +17,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { Avatar } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -72,6 +72,8 @@ export default function MockInterviewerPage() {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<any>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [selectedResumeText, setSelectedResumeText] = useState<string | undefined>();
   
   const resumesQuery = useMemoFirebase(() => {
       if (!user || !firestore) return null;
@@ -79,6 +81,14 @@ export default function MockInterviewerPage() {
     }, [user, firestore]);
 
   const { data: resumes, isLoading: resumesLoading } = useCollection<ResumeDoc>(resumesQuery);
+
+  const setupForm = useForm<z.infer<typeof setupSchemaBase>>({
+    resolver: zodResolver(setupSchemaBase),
+  });
+
+  const responseForm = useForm<z.infer<typeof responseSchema>>({
+    resolver: zodResolver(responseSchema),
+  });
 
   const setupSchema = setupSchemaBase.refine(
     (data) => {
@@ -92,14 +102,6 @@ export default function MockInterviewerPage() {
       path: ['resumeId'],
     }
   );
-
-  const setupForm = useForm<z.infer<typeof setupSchema>>({
-    resolver: zodResolver(setupSchema),
-  });
-
-  const responseForm = useForm<z.infer<typeof responseSchema>>({
-    resolver: zodResolver(responseSchema),
-  });
 
   const speak = (text: string) => {
     if ('speechSynthesis' in window) {
@@ -183,15 +185,48 @@ export default function MockInterviewerPage() {
     }
   }, [messages])
 
+  useEffect(() => {
+    const saveInterview = async () => {
+        if (lastResponse?.isInterviewOver && user && firestore && !isSaving) {
+            setIsSaving(true);
+            const transcript = messages.map(m => `${m.role}: ${m.content}`).join('\n\n');
+            try {
+                const interviewsCollectionRef = collection(firestore, 'users', user.uid, 'mock_interviews');
+                await addDoc(interviewsCollectionRef, {
+                    userId: user.uid,
+                    interviewDate: serverTimestamp(),
+                    score: lastResponse.score,
+                    feedback: lastResponse.feedback,
+                    transcript: transcript,
+                    jobDescription: jobDescription,
+                });
+                toast({
+                    title: "Interview Saved",
+                    description: "Your interview session has been saved to your history."
+                });
+            } catch (error) {
+                console.error("Failed to save interview", error);
+                toast({
+                    variant: "destructive",
+                    title: "Save Failed",
+                    description: "Could not save the interview session."
+                });
+            } finally {
+                setIsSaving(false);
+            }
+        }
+    }
+    saveInterview();
+  }, [lastResponse, user, firestore, messages, jobDescription, isSaving, toast]);
+
   const dataUriToText = (dataUri: string): string => {
     const base64 = dataUri.split(',')[1];
     if (!base64) return '';
     try {
-        // Use Buffer for Node.js or atob for browser
         return typeof window !== 'undefined' ? window.atob(base64) : Buffer.from(base64, 'base64').toString('utf-8');
     } catch (e) {
         console.error("Failed to decode base64:", e);
-        return ''; // Return empty string on failure
+        return '';
     }
   }
 
@@ -208,6 +243,7 @@ export default function MockInterviewerPage() {
         const selectedResume = resumes?.find(r => r.id === values.resumeId);
         if (selectedResume) {
             resumeText = dataUriToText(selectedResume.resumeUrl);
+            setSelectedResumeText(resumeText);
         }
     }
 
@@ -259,6 +295,7 @@ export default function MockInterviewerPage() {
         interviewQuestion: lastResponse.nextQuestion,
         previousConversation: lastResponse.conversationHistory,
         questionCount: questionCount,
+        resumeText: selectedResumeText,
       });
       
       setLastResponse(result);
@@ -362,7 +399,7 @@ export default function MockInterviewerPage() {
                       name="resumeId"
                       render={({ field }) => (
                           <FormItem>
-                              <FormLabel>Select a Resume</FormLabel>
+                              <FormLabel>Select a Resume (Required)</FormLabel>
                               <FormMessage />
                               {resumesLoading && <Skeleton className="h-20 w-full" />}
                               {!resumesLoading && (
@@ -434,8 +471,9 @@ export default function MockInterviewerPage() {
                         <p className="text-muted-foreground whitespace-pre-wrap">{lastResponse.feedback}</p>
                     </div>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className='gap-2'>
                     <Button onClick={() => window.location.reload()}>Start New Interview</Button>
+                    {isSaving && <Button variant="outline" disabled><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</Button>}
                 </CardFooter>
             </Card>
         </>

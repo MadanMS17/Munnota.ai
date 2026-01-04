@@ -9,12 +9,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { BarChart, CheckCircle, Clipboard, ExternalLink, XCircle } from 'lucide-react';
+import { BarChart, Bot, CheckCircle, Clipboard, ExternalLink, MessageSquare, Star, User, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
+import { Avatar } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Post {
   id: string;
@@ -44,6 +47,20 @@ interface SkillGapRoadmap {
     roadmap: string;
     creationDate: Date;
 }
+
+interface MockInterview {
+    id: string;
+    interviewDate: Date;
+    score: number;
+    feedback: string;
+    transcript: string;
+    jobDescription: string;
+}
+
+type TranscriptMessage = {
+    role: 'user' | 'assistant';
+    content: string;
+};
 
 const RenderLine = ({ line }: { line: string }) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -92,6 +109,18 @@ const parseRoadmap = (text: string) => {
     }
     return result;
 };
+
+const parseTranscript = (text: string): TranscriptMessage[] => {
+    if (!text) return [];
+    return text.split('\n\n').map(line => {
+      const [role, ...contentParts] = line.split(': ');
+      const content = contentParts.join(': ');
+      return {
+        role: role.toLowerCase() as 'user' | 'assistant',
+        content,
+      };
+    }).filter(m => m.role && m.content);
+  };
 
 const Suggestions = ({ suggestions }: { suggestions: string }) => {
     const introMatch = suggestions.match(/^(.*?)(?=1\.\s)/s);
@@ -150,6 +179,7 @@ export default function HistoryPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [analyses, setAnalyses] = useState<ResumeAnalysis[]>([]);
   const [roadmaps, setRoadmaps] = useState<SkillGapRoadmap[]>([]);
+  const [interviews, setInterviews] = useState<MockInterview[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -163,18 +193,20 @@ export default function HistoryPage() {
         const postQuery = query(collection(firestore, 'posts', user.uid, 'linkedin_posts'), orderBy('timestamp', 'desc'));
         const analysesQuery = query(collection(firestore, 'users', user.uid, 'resume_analyses'), orderBy('analysisDate', 'desc'));
         const roadmapsQuery = query(collection(firestore, 'users', user.uid, 'skill_gap_roadmaps'), orderBy('creationDate', 'desc'));
+        const interviewsQuery = query(collection(firestore, 'users', user.uid, 'mock_interviews'), orderBy('interviewDate', 'desc'));
 
-        const [postSnapshot, analysesSnapshot, roadmapsSnapshot] = await Promise.all([
+        const [postSnapshot, analysesSnapshot, roadmapsSnapshot, interviewsSnapshot] = await Promise.all([
             getDocs(postQuery),
             getDocs(analysesQuery),
             getDocs(roadmapsQuery),
+            getDocs(interviewsQuery),
         ]);
 
         const fetchedPosts: Post[] = postSnapshot.docs.map(doc => {
             const data = doc.data();
             return {
                 id: doc.id,
-                content: data.post, // Note: field name is 'post' in linkedin-post-generator
+                content: data.post,
                 creationDate: (data.timestamp as Timestamp)?.toDate() || new Date(),
                 tone: data.tone,
                 projectDetails: data.projectDetails,
@@ -199,9 +231,19 @@ export default function HistoryPage() {
             } as SkillGapRoadmap;
         });
 
+        const fetchedInterviews: MockInterview[] = interviewsSnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                ...data,
+                interviewDate: (data.interviewDate as Timestamp)?.toDate() || new Date(),
+            } as MockInterview;
+        });
+
         setPosts(fetchedPosts);
         setAnalyses(fetchedAnalyses);
         setRoadmaps(fetchedRoadmaps);
+        setInterviews(fetchedInterviews);
 
       } catch (error) {
         console.error("Error fetching history: ", error);
@@ -233,7 +275,7 @@ export default function HistoryPage() {
           <TabsTrigger value="linkedin">LinkedIn Posts</TabsTrigger>
           <TabsTrigger value="resume">Resume Analysis</TabsTrigger>
           <TabsTrigger value="roadmap">Skill Roadmaps</TabsTrigger>
-          <TabsTrigger value="interviews" disabled>Mock Interviews</TabsTrigger>
+          <TabsTrigger value="interviews">Mock Interviews</TabsTrigger>
         </TabsList>
         <TabsContent value="linkedin">
           <Card className="bg-card/50 backdrop-blur-lg border border-border/20">
@@ -388,6 +430,76 @@ export default function HistoryPage() {
                         </div>
                     )
                 })}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="interviews">
+          <Card className="bg-card/50 backdrop-blur-lg border border-border/20">
+            <CardHeader>
+              <CardTitle>Mock Interview Sessions</CardTitle>
+              <CardDescription>A log of all your past interview practice sessions.</CardDescription>
+            </CardHeader>
+            <CardContent>
+               <div className="space-y-6">
+                {loading && Array.from({ length: 1 }).map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
+                {!loading && interviews.length === 0 && <p className="text-muted-foreground text-center py-8">No interview sessions found.</p>}
+                {!loading && interviews.map((interview) => (
+                    <Accordion type="single" collapsible className="w-full" key={interview.id}>
+                        <AccordionItem value={interview.id}>
+                            <AccordionTrigger className="text-md font-semibold hover:no-underline text-left p-4 rounded-lg bg-muted/30 border">
+                                <div className="flex flex-col sm:flex-row justify-between items-start w-full gap-2 flex-wrap">
+                                    <div className="flex-grow min-w-0">
+                                        <p className="font-semibold">Final Score: <span className="text-primary">{interview.score}/100</span></p>
+                                        <p className="text-sm text-muted-foreground break-all">For job: {interview.jobDescription}</p>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground flex-shrink-0 mt-2 sm:mt-0 sm:ml-4">
+                                        {formatDistanceToNow(interview.interviewDate, { addSuffix: true })}
+                                    </p>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="p-4 border border-t-0 rounded-b-lg">
+                                <div className="space-y-6">
+                                    <div>
+                                        <h3 className="font-semibold text-lg mb-2 flex items-center"><Star className="h-5 w-5 mr-2 text-yellow-500" /> Final Feedback</h3>
+                                        <p className="text-muted-foreground whitespace-pre-wrap bg-muted/20 p-4 rounded-md">{interview.feedback}</p>
+                                    </div>
+
+                                    <Separator />
+                                    
+                                    <div>
+                                        <h3 className="font-semibold text-lg mb-2 flex items-center"><MessageSquare className="h-5 w-5 mr-2 text-primary" /> Chat Transcript</h3>
+                                        <ScrollArea className="h-72 w-full rounded-md border p-4 bg-muted/20">
+                                            <div className="space-y-4">
+                                                {parseTranscript(interview.transcript).map((message, index) => (
+                                                    <div key={index} className={cn("flex items-start gap-3", message.role === 'user' ? 'justify-end' : '')}>
+                                                        {message.role === 'assistant' && (
+                                                        <Avatar className="h-8 w-8 border">
+                                                            <div className="h-full w-full flex items-center justify-center bg-primary rounded-full">
+                                                                <Bot className="h-4 w-4 text-primary-foreground" />
+                                                            </div>
+                                                        </Avatar>
+                                                        )}
+                                                        <div className={cn("max-w-md p-3 rounded-lg text-sm", message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-background')}>
+                                                            <p className="whitespace-pre-wrap">{message.content}</p>
+                                                        </div>
+                                                        {message.role === 'user' && (
+                                                        <Avatar className="h-8 w-8 border">
+                                                            <div className="h-full w-full flex items-center justify-center bg-background rounded-full">
+                                                                <User className="h-4 w-4 text-muted-foreground" />
+                                                            </div>
+                                                        </Avatar>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </ScrollArea>
+                                    </div>
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+                ))}
               </div>
             </CardContent>
           </Card>
