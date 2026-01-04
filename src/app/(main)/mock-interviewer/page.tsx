@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Bot, Loader2, Send, Sparkles, User, MessageSquare, Star } from 'lucide-react';
+import { Bot, Loader2, Send, Sparkles, User, MessageSquare, Star, Mic, Keyboard, Volume2 } from 'lucide-react';
 import { aiMockInterviewer, AIMockInterviewerOutput } from '@/ai/ai-mock-interviewer';
 import { useUser } from '@/firebase';
 import { cn } from '@/lib/utils';
@@ -22,7 +22,7 @@ const setupSchema = z.object({
 });
 
 const responseSchema = z.object({
-  userResponse: z.string().min(10, 'Please provide a more detailed response.'),
+  userResponse: z.string().min(1, 'Please provide a response.'),
 });
 
 type Message = {
@@ -32,14 +32,111 @@ type Message = {
   score?: number;
 };
 
+type InterviewMode = 'text' | 'voice';
+
+// SpeechRecognition and SpeechSynthesis types might not be available in Node.js environment
+// We declare them here to avoid TypeScript errors during build.
+declare global {
+    interface Window {
+        SpeechRecognition: any;
+        webkitSpeechRecognition: any;
+    }
+}
+
 export default function MockInterviewerPage() {
   const { user } = useUser();
   const { toast } = useToast();
+  const [interviewMode, setInterviewMode] = useState<InterviewMode | null>(null);
   const [isStarted, setIsStarted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [jobDescription, setJobDescription] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [lastResponse, setLastResponse] = useState<AIMockInterviewerOutput | null>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  // States for voice mode
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const recognitionRef = useRef<any>(null);
+
+
+  // Text-to-Speech
+  const speak = (text: string) => {
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  useEffect(() => {
+    if (interviewMode === 'voice' && 'speechSynthesis' in window) {
+      // Ensure any ongoing speech is stopped when component unmounts or mode changes
+      return () => window.speechSynthesis.cancel();
+    }
+  }, [interviewMode]);
+
+
+  // Speech-to-Text setup
+  useEffect(() => {
+    if (interviewMode !== 'voice') return;
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast({ variant: 'destructive', title: 'Unsupported Browser', description: 'Speech recognition is not supported in this browser.' });
+      setInterviewMode('text'); // Fallback to text mode
+      return;
+    }
+    
+    recognitionRef.current = new SpeechRecognition();
+    const recognition = recognitionRef.current;
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event: any) => {
+      let interimTranscript = '';
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        } else {
+          interimTranscript += event.results[i][0].transcript;
+        }
+      }
+      setTranscript(transcript + finalTranscript + interimTranscript);
+      responseForm.setValue('userResponse', transcript + finalTranscript + interimTranscript);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        toast({ variant: 'destructive', title: 'Recognition Error', description: event.error });
+    }
+
+    return () => {
+        if (recognitionRef.current) {
+            recognitionRef.current.stop();
+        }
+    }
+
+  }, [interviewMode, toast, transcript, responseForm]);
+
+
+  const toggleListening = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+    } else {
+      setTranscript(''); // Reset transcript for new recording
+      recognitionRef.current?.start();
+    }
+    setIsListening(!isListening);
+  };
+
 
   const setupForm = useForm<z.infer<typeof setupSchema>>({
     resolver: zodResolver(setupSchema),
@@ -48,6 +145,12 @@ export default function MockInterviewerPage() {
   const responseForm = useForm<z.infer<typeof responseSchema>>({
     resolver: zodResolver(responseSchema),
   });
+
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+        scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
+    }
+  }, [messages])
 
   const handleStartInterview = async (values: z.infer<typeof setupSchema>) => {
     if (!user) {
@@ -62,7 +165,11 @@ export default function MockInterviewerPage() {
         userResponse: 'Hello, thank you for having me.',
         interviewQuestion: "Let's get started. Please introduce yourself.",
       });
-      setMessages([{ role: 'assistant', content: result.nextQuestion }]);
+
+      const firstQuestion = result.nextQuestion;
+      setMessages([{ role: 'assistant', content: firstQuestion }]);
+      if (interviewMode === 'voice') speak(firstQuestion);
+
       setLastResponse(result);
       setIsStarted(true);
     } catch (error) {
@@ -75,6 +182,11 @@ export default function MockInterviewerPage() {
 
   const handleSendResponse = async (values: z.infer<typeof responseSchema>) => {
     if (!user || !lastResponse) return;
+    
+    if (isListening) {
+        recognitionRef.current?.stop();
+        setIsListening(false);
+    }
 
     setIsLoading(true);
     const newMessages: Message[] = [
@@ -83,6 +195,7 @@ export default function MockInterviewerPage() {
     ];
     setMessages(newMessages);
     responseForm.reset();
+    setTranscript('');
 
     try {
       const result = await aiMockInterviewer({
@@ -92,16 +205,20 @@ export default function MockInterviewerPage() {
         previousConversation: lastResponse.conversationHistory,
       });
 
+      const nextQuestion = result.nextQuestion;
+
       setMessages([
           ...newMessages,
           { 
               role: 'assistant', 
-              content: result.nextQuestion, 
+              content: nextQuestion, 
               feedback: result.feedback, 
               score: result.score 
           }
       ]);
       setLastResponse(result);
+
+      if (interviewMode === 'voice') speak(nextQuestion);
 
     } catch (error) {
       console.error(error);
@@ -110,13 +227,43 @@ export default function MockInterviewerPage() {
       setIsLoading(false);
     }
   };
+  
+  if (!interviewMode) {
+    return (
+        <>
+            <PageHeader
+                title="AI Mock Interviewer"
+                description="Practice your interview skills with a real-time AI to build confidence."
+            />
+            <Card className="max-w-2xl mx-auto bg-card/50 backdrop-blur-lg border border-border/20">
+                <CardHeader>
+                    <CardTitle>Choose Your Interview Mode</CardTitle>
+                    <CardDescription>Select how you'd like to interact with the AI interviewer.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Button variant="outline" className="h-auto py-6 flex flex-col gap-2" onClick={() => setInterviewMode('text')}>
+                        <Keyboard className="h-8 w-8" />
+                        <span className="font-semibold">Text-Based Interview</span>
+                        <span className="text-xs text-muted-foreground">Type your responses.</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-6 flex flex-col gap-2" onClick={() => setInterviewMode('voice')}>
+                        <Volume2 className="h-8 w-8" />
+                        <span className="font-semibold">Voice-Based Interview</span>
+                        <span className="text-xs text-muted-foreground">Speak your responses.</span>
+                    </Button>
+                </CardContent>
+            </Card>
+        </>
+    )
+  }
+
 
   if (!isStarted) {
     return (
       <>
         <PageHeader
           title="AI Mock Interviewer"
-          description="First, provide the job description for the role you're practicing for."
+          description={`Mode: ${interviewMode === 'text' ? 'Text-Based' : 'Voice-Based'}. First, provide the job description for the role you're practicing for.`}
         />
         <Card className="bg-card/50 backdrop-blur-lg border border-border/20">
           <CardHeader>
@@ -164,7 +311,7 @@ export default function MockInterviewerPage() {
                 <CardTitle className='flex items-center gap-2'><MessageSquare/> Interview Chat</CardTitle>
             </CardHeader>
           <CardContent className="flex-1 flex flex-col">
-            <ScrollArea className="flex-1 pr-4 mb-4 h-96">
+            <ScrollArea className="flex-1 pr-4 mb-4 h-96" ref={scrollAreaRef}>
               <div className="space-y-6">
                 {messages.map((message, index) => (
                   <div key={index} className={cn("flex items-start gap-3", message.role === 'user' ? 'justify-end' : '')}>
@@ -191,23 +338,33 @@ export default function MockInterviewerPage() {
             </ScrollArea>
 
             <Form {...responseForm}>
-              <form onSubmit={responseForm.handleSubmit(handleSendResponse)} className="flex items-start gap-4">
-                <FormField
-                  control={responseForm.control}
-                  name="userResponse"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormControl>
-                        <Textarea placeholder="Type your answer here..." {...field} rows={3} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" size="icon" disabled={isLoading} className="h-auto aspect-square p-2 self-stretch">
-                  {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-                </Button>
-              </form>
+                <form onSubmit={responseForm.handleSubmit(handleSendResponse)} className="flex items-start gap-4">
+                    {interviewMode === 'text' ? (
+                        <FormField
+                            control={responseForm.control}
+                            name="userResponse"
+                            render={({ field }) => (
+                                <FormItem className="flex-1">
+                                    <FormControl>
+                                        <Textarea placeholder="Type your answer here..." {...field} rows={3} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    ) : (
+                        <div className='flex-1 flex flex-col items-center justify-center gap-2'>
+                           <Button type="button" size="icon" onClick={toggleListening} className={cn('h-16 w-16 rounded-full', isListening && 'bg-destructive')}>
+                                <Mic className="h-8 w-8" />
+                           </Button>
+                           <p className="text-sm text-muted-foreground h-4">{isListening ? 'Listening...' : 'Click mic to speak'}</p>
+                           <Textarea value={transcript} readOnly className="mt-2 bg-muted/20" placeholder="Your transcribed response will appear here..." />
+                        </div>
+                    )}
+                    <Button type="submit" size="icon" disabled={isLoading} className="h-auto aspect-square p-2 self-stretch">
+                        {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                    </Button>
+                </form>
             </Form>
           </CardContent>
         </Card>
