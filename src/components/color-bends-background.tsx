@@ -113,13 +113,13 @@ void main() {
 }
 `;
 
-export function ColorBends({
+export default function ColorBends({
   className,
   style,
   rotation = 45,
   speed = 0.2,
   colors = [],
-  transparent = false,
+  transparent = true,
   autoRotate = 0,
   scale = 1,
   frequency = 1,

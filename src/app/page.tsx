@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AppLogo } from '@/components/app-logo';
 import { ArrowRight, Bot, Compass, FileText, Linkedin } from 'lucide-react';
-import { ColorBends } from '@/components/color-bends-background';
+import ColorBends from '@/components/color-bends-background';
 
 
 
@@ -66,14 +66,15 @@ export default function Home() {
           <div className="absolute inset-0 z-0">
             <ColorBends
               colors={["#4a00e0", "#8e2de2", "#00c6ff"]}
-              rotation={30}
-              speed={0.2}
-              scale={1}
+              rotation={-180}
+              autoRotate={-2}
+              speed={0.5}
+              scale={1.5}
               frequency={1.2}
-              warpStrength={1.5}
-              mouseInfluence={0.5}
-              parallax={0.3}
-              noise={0}
+              warpStrength={1.2}
+              mouseInfluence={2}
+              parallax={1.1}
+              noise={0.71}
               transparent={true}
             />
           </div>
