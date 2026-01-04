@@ -146,7 +146,23 @@ export default function Home() {
                 <p className="mt-6 max-w-3xl mx-auto text-lg text-muted-foreground">
                     In today's job market, standing still is falling behind. While you're manually tailoring your resume for the tenth time, top candidates are leveraging AI to get instant feedback, generate targeted content, and chart their learning path. Don't get left in the digital dust.
                 </p>
-                <div className="mt-10">
+
+                <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 max-w-4xl mx-auto">
+                    <div className="text-center">
+                        <p className="text-5xl font-bold text-white">85%</p>
+                        <p className="mt-2 text-muted-foreground">More Likely to Land an Interview</p>
+                    </div>
+                    <div className="text-center">
+                        <p className="text-5xl font-bold text-white">3X</p>
+                        <p className="mt-2 text-muted-foreground">Faster Application Process</p>
+                    </div>
+                    <div className="text-center">
+                        <p className="text-5xl font-bold text-white">92%</p>
+                        <p className="mt-2 text-muted-foreground">Higher Confidence Reported</p>
+                    </div>
+                </div>
+
+                <div className="mt-16">
                     <Button size="lg" asChild>
                         <Link href="/signup">Get Your Unfair Advantage <ArrowRight className="ml-2" /></Link>
                     </Button>
