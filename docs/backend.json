@@ -203,8 +203,7 @@
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "google.com"
     ]
   },
   "firestore": {
@@ -309,3 +308,4 @@
     "reasoning": "The Firestore data structure is designed to ensure security, scalability, and debuggability, adhering to the principles of Authorization Independence and Structural Segregation. User-owned data is stored under `/users/{userId}` for simple path-based ownership. All collections under a user's path inherit the user's authorization context, enabling easy security rule creation.\n\nThe `UserProfile` is stored directly at `/users/{userId}`.\n\nLinkedIn posts, Resume analyses, Skill Gap Roadmaps, and Mock Interviews are stored as subcollections of the user's document (`/users/{userId}/linkedin_posts`, `/users/{userId}/resume_analyses`, `/users/{userId}/skill_gap_roadmaps`, `/users/{userId}/mock_interviews`). This enforces a 1:N relationship and ownership, simplifying security rules.\n\nThis structure achieves Authorization Independence by avoiding the need for `get()` calls to parent documents for authorization. Security rules can directly check `request.auth.uid` against the `{userId}` parameter in the path.  It supports the QAP (Rules Are Not Filters) principle because listing operations are naturally scoped to the authenticated user's data.\n\nThis structure does not use custom claims for DBAC.  All authorization is based on the `request.auth.uid` and the document paths."
   }
 }
+    
