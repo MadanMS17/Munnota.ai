@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, BotMessageSquare, Compass, FileText, Linkedin, Zap } from 'lucide-react';
 import SpotlightCard from '@/components/ui/spotlight-card';
 import dynamic from 'next/dynamic';
-import Hyperspeed from '@/components/ui/hyperspeed';
 
 const FloatingLines = dynamic(() => import('@/components/ui/floating-lines'), { ssr: false });
 const GridScan = dynamic(() => import('@/components/ui/grid-scan').then(mod => mod.GridScan), { ssr: false });
@@ -124,9 +123,6 @@ export default function Home() {
 
         {/* FOMO Section */}
         <section className="relative py-20 sm:py-32 overflow-hidden">
-            <div className="absolute inset-0 z-0">
-                <Hyperspeed activePreset="five" />
-            </div>
             <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <Zap className="mx-auto h-16 w-16 text-primary animate-pulse" />
                 <h2 className="mt-6 text-4xl sm:text-5xl font-bold tracking-tight text-white">
