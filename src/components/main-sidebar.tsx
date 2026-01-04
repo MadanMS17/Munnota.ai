@@ -14,6 +14,8 @@ import { usePathname } from 'next/navigation';
 import {
   Sheet,
   SheetContent,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Button } from './ui/button';
@@ -77,6 +79,9 @@ export function MainSidebar() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-72 flex flex-col p-0">
+                  <SheetHeader>
+                    <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                  </SheetHeader>
                   <div className="p-4">
                     <Link href="/linkedin-post-generator">
                         <AppLogo />
