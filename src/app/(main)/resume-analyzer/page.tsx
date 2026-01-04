@@ -275,10 +275,8 @@ export default function ResumeAnalyzerPage() {
                                         className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"
                                     >
                                         {resumes.map((resume) => (
-                                            <FormItem key={resume.id} className="flex-1">
-                                                <FormControl>
-                                                    <RadioGroupItem value={resume.id} id={resume.id} className="sr-only peer" />
-                                                </FormControl>
+                                            <div key={resume.id} className="flex-1">
+                                                <RadioGroupItem value={resume.id} id={resume.id} className="sr-only peer" />
                                                 <Label 
                                                     htmlFor={resume.id}
                                                     className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
@@ -286,7 +284,7 @@ export default function ResumeAnalyzerPage() {
                                                     <FileText className="mb-2 h-6 w-6" />
                                                     <span className="truncate">{resume.resumeName}</span>
                                                 </Label>
-                                            </FormItem>
+                                            </div>
                                         ))}
                                     </RadioGroup>
                                 </FormControl>
@@ -390,10 +388,10 @@ export default function ResumeAnalyzerPage() {
                 </AlertDialogHeader>
                 <RadioGroup onValueChange={setResumeToDelete} className="gap-4 py-4">
                     {resumes?.map(resume => (
-                         <FormItem key={resume.id} className="flex-1">
-                            <FormControl>
+                         <div key={resume.id} className="flex-1">
+                            <>
                                 <RadioGroupItem value={resume.id} id={`delete-${resume.id}`} className="sr-only peer" />
-                            </FormControl>
+                            </>
                             <Label 
                                 htmlFor={`delete-${resume.id}`}
                                 className="flex items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-destructive [&:has([data-state=checked])]:border-destructive"
@@ -401,7 +399,7 @@ export default function ResumeAnalyzerPage() {
                                 <span className="truncate">{resume.resumeName}</span>
                                 <Trash2 className="h-5 w-5 text-destructive opacity-50 peer-data-[state=checked]:opacity-100" />
                             </Label>
-                        </FormItem>
+                        </div>
                     ))}
                 </RadioGroup>
                 <AlertDialogFooter>
@@ -417,3 +415,5 @@ export default function ResumeAnalyzerPage() {
     </>
   );
 }
+
+    
