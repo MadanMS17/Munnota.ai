@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { analyzeResume, AnalyzeResumeOutput } from '@/ai/flows/analyze-resume-against-job-description';
-import { useUser, useFirestore, useCollection } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
@@ -96,8 +96,12 @@ export default function ResumeAnalyzerPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
 
-  const resumesRef = user ? collection(firestore, 'users', user.uid, 'resumes') : null;
-  const resumesQuery = resumesRef ? query(resumesRef, orderBy('createdAt', 'desc')) : null;
+  const resumesQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    const resumesRef = collection(firestore, 'users', user.uid, 'resumes');
+    return query(resumesRef, orderBy('createdAt', 'desc'));
+  }, [user, firestore]);
+
   const { data: resumes, isLoading: resumesLoading } = useCollection<ResumeDoc>(resumesQuery);
 
   const [analysisResult, setAnalysisResult] = useState<AnalyzeResumeOutput | null>(null);
@@ -412,5 +416,3 @@ export default function ResumeAnalyzerPage() {
     </>
   );
 }
-
-    
