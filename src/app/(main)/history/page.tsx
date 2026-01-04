@@ -9,9 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { Clipboard, ExternalLink } from 'lucide-react';
+import { BarChart, CheckCircle, Clipboard, ExternalLink, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 
 interface Post {
   id: string;
@@ -91,6 +94,64 @@ const parseRoadmap = (text: string) => {
     }
     return result;
 };
+
+const Suggestions = ({ suggestions }: { suggestions: string }) => {
+    // Split the text at the first occurrence of "1. " or "1. **" to separate the intro.
+    const introMatch = suggestions.match(/^(.*?)(?=1\.\s)/s);
+    const intro = introMatch ? introMatch[1].trim() : '';
+    
+    // The rest of the string contains the numbered items.
+    const itemsText = introMatch ? suggestions.substring(introMatch[0].length) : suggestions;
+  
+    // Split the rest of the text into individual suggestion items.
+    // This regex looks for a number followed by a period and a space.
+    const suggestionItems = itemsText.split(/\s*(?=\d+\.\s)/).filter(s => s.trim().length > 0);
+  
+    return (
+      <div className="space-y-4">
+        {intro && <p className="text-muted-foreground mb-6">{intro}</p>}
+        {suggestionItems.map((item, index) => {
+          // This regex captures the number, the title (which might be bold), and the description.
+          // It looks for a number, period, space, then captures the text until a colon, and then the rest.
+          const match = item.match(/(\d+)\.\s(?:_|\*)*(.+?)(?:_|\*)*:\s*(.*)/s);
+          
+          if (!match) {
+            // Fallback for items that don't match the "Title: Description" format
+            return <p key={index} className="text-muted-foreground">{item.replace(/\*\*/g, '')}</p>;
+          }
+          
+          const [, number, title, description] = match;
+          
+          return (
+            <div key={number} className="flex gap-4 items-start">
+              <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold mt-1">
+                  {number}
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground">{title}</h4>
+                <p className="text-muted-foreground">{description.replace(/\*\*/g, '')}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const ScoreCard = ({ title, score, description }: { title: string; score: number, description: string }) => (
+    <Card>
+        <CardHeader className="pb-2">
+            <CardDescription>{title}</CardDescription>
+            <CardTitle className="text-4xl">{score}/100</CardTitle>
+        </CardHeader>
+        <CardContent>
+            <div className="text-xs text-muted-foreground">{description}</div>
+        </CardContent>
+        <CardContent>
+            <Progress value={score} aria-label={`${title} score`} />
+        </CardContent>
+    </Card>
+)
 
 export default function HistoryPage() {
   const { user } = useUser();
@@ -224,14 +285,56 @@ export default function HistoryPage() {
                 {loading && Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-40 w-full" />)}
                 {!loading && analyses.length === 0 && <p className="text-muted-foreground text-center py-8">No resume analyses performed yet.</p>}
                 {!loading && analyses.map((analysis) => (
-                  <div key={analysis.id} className="p-4 rounded-lg bg-muted/30 border">
-                    <p className="text-sm text-muted-foreground mb-2">
-                        {formatDistanceToNow(analysis.analysisDate, { addSuffix: true })}
-                    </p>
-                    <p className="font-semibold">Overall Score: <span className="text-primary">{analysis.overallScore}/100</span></p>
-                    <p className="text-sm text-muted-foreground truncate">For job: {analysis.jobDescription}</p>
-                    {/* Future: could add a dialog to show full details */}
-                  </div>
+                    <Accordion type="single" collapsible className="w-full" key={analysis.id}>
+                        <AccordionItem value={analysis.id}>
+                            <AccordionTrigger className="text-md font-semibold hover:no-underline text-left p-4 rounded-lg bg-muted/30 border">
+                                <div className="flex justify-between items-center w-full">
+                                    <div>
+                                        <p className="font-semibold">Overall Score: <span className="text-primary">{analysis.overallScore}/100</span></p>
+                                        <p className="text-sm text-muted-foreground truncate">For job: {analysis.jobDescription}</p>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground flex-shrink-0 ml-4">
+                                        {formatDistanceToNow(analysis.analysisDate, { addSuffix: true })}
+                                    </p>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="p-4 border border-t-0 rounded-b-lg">
+                                <div className="space-y-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <ScoreCard title="Project Portfolio" score={analysis.studentProjectPortfolioScore} description="Relevance of projects to JD tech stack."/>
+                                        <ScoreCard title="Technical Knowledge" score={analysis.technicalKnowledgeScore} description="Depth and breadth of technical skills."/>
+                                        <ScoreCard title="Keyword Match" score={analysis.keywordScore} description="Contextual keyword alignment with JD."/>
+                                    </div>
+                                    
+                                    <Separator />
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h3 className="font-semibold text-lg mb-2 flex items-center"><CheckCircle className="h-5 w-5 mr-2 text-green-500" /> Matched Keywords</h3>
+                                            <div className="flex flex-wrap gap-2">
+                                                {analysis.keywordMatches.map(kw => <Badge key={kw} variant="secondary">{kw}</Badge>)}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-lg mb-2 flex items-center"><XCircle className="h-5 w-5 mr-2 text-red-500" /> Missing Keywords</h3>
+                                            <div className="flex flex-wrap gap-2">
+                                                {analysis.keywordGaps.map(kw => <Badge key={kw} variant="destructive">{kw}</Badge>)}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <Separator />
+
+                                    <div>
+                                        <h3 className="font-semibold text-lg mb-4 flex items-center"><BarChart className="h-5 w-5 mr-2 text-primary" /> Optimization Suggestions</h3>
+                                        <div className="bg-muted/20 p-6 rounded-md">
+                                            <Suggestions suggestions={analysis.suggestions} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
                 ))}
               </div>
             </CardContent>
