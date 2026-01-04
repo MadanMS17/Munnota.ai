@@ -69,13 +69,13 @@ export default function Home() {
           <div className="absolute inset-0 z-0">
           <ColorBends
             colors={["#ff5c7a", "#8a5cff", "#00ffd1"]}
-            rotation={30}
-            speed={0.3}
-            scale={1.2}
-            frequency={1.4}
-            warpStrength={1.2}
-            mouseInfluence={0.8}
-            parallax={0.6}
+            rotation={-180}
+            autoRotate={-2}
+            speed={0.5}
+            scale={1.5}
+            frequency={1.2}
+            mouseInfluence={2}
+            parallax={1.1}
             noise={0.08}
             transparent={true}
           />
@@ -115,7 +115,7 @@ export default function Home() {
                 <div className="text-center">
                     <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">The Ultimate Toolkit for Career Success</h2>
                     <p className="mt-6 max-w-3xl mx-auto text-lg text-muted-foreground">
-                        Stop guessing what recruiters want to see. Get data-driven insights and AI-powered tools to build a winning application.
+                        Stop guessing what recruiters want to see. Get data-driven insights and enhance your skills.
                     </p>
                 </div>
                 <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
