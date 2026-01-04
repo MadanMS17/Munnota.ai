@@ -6,6 +6,7 @@ import { AppLogo } from '@/components/app-logo';
 import { ArrowRight, Bot, Compass, FileText, Github, Linkedin, Users, Zap } from 'lucide-react';
 import SpotlightCard from '@/components/ui/spotlight-card';
 import { GridScan } from '@/components/ui/grid-scan';
+import FloatingLines from '@/components/ui/floating-lines';
 
 const features = [
   {
@@ -36,7 +37,18 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative flex h-[calc(100vh-8rem)] min-h-[700px] items-center justify-center overflow-hidden pt-32">
+        <section className="relative flex h-[calc(100vh-8rem)] min-h-[700px] items-center justify-center overflow-hidden">
+          <div className="absolute inset-0 z-0 bg-background">
+            <FloatingLines
+                enabledWaves={['top', 'middle', 'bottom']}
+                lineCount={[10, 15, 20]}
+                lineDistance={[8, 6, 4]}
+                bendRadius={5.0}
+                bendStrength={-0.5}
+                interactive={true}
+                parallax={true}
+            />
+          </div>
           <div className="relative z-10 text-center text-white px-4">
             <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight">
               Land Your Dream Job, Faster.
