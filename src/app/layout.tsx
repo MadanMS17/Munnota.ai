@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
-import { MainSidebar } from '@/components/main-sidebar';
 import { AppLogo } from '@/components/app-logo';
 import Link from 'next/link';
 import { Github, Users } from 'lucide-react';
+import { UserButton } from '@/components/user-button';
 
 export const metadata: Metadata = {
   title: 'CareerFlow.ai',
@@ -27,26 +27,30 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <FirebaseClientProvider>
           <div className="flex min-h-screen flex-col">
-            <MainSidebar />
+            <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-fit px-4">
+                <div className="flex items-center justify-between h-16 w-full px-6 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg">
+                    <Link href="/">
+                        <AppLogo />
+                    </Link>
+                    <UserButton />
+                </div>
+            </header>
             <div className="flex-1">
               {children}
             </div>
             <footer className="py-16 bg-card border-t border-border">
               <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-muted-foreground">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
-                      {/* Column 1: Company Info */}
                       <div>
                           <AppLogo className="justify-center md:justify-start mb-4"/>
                           <p className="text-sm">&copy; {new Date().getFullYear()} CareerFlow.ai. All rights reserved.</p>
                       </div>
-                      {/* Column 2: Links */}
                       <div className="flex flex-col items-center md:items-start gap-2">
                           <h3 className="font-semibold text-foreground mb-2">Links</h3>
                           <Link href="#" className="hover:text-primary transition-colors">About</Link>
                           <Link href="#" className="hover:text-primary transition-colors">Blogs</Link>
                           <Link href="#" className="hover:text-primary transition-colors">Career</Link>
                       </div>
-                      {/* Column 3: Social Icons */}
                       <div className="flex flex-col items-center md:items-start gap-2">
                           <h3 className="font-semibold text-foreground mb-2">Community</h3>
                           <div className="flex gap-4 justify-center md:justify-start">

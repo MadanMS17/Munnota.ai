@@ -4,6 +4,7 @@ import { useUser } from "@/firebase";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MainSidebar } from "@/components/main-sidebar";
 
 export default function MainLayout({
   children,
@@ -49,8 +50,11 @@ export default function MainLayout({
   }
 
   return (
-    <PageShell>
-        {children}
-    </PageShell>
+    <>
+      <MainSidebar />
+      <PageShell>
+          {children}
+      </PageShell>
+    </>
   );
 }

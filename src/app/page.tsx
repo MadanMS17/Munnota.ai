@@ -8,9 +8,6 @@ import ColorBends from '@/components/color-bends-background';
 import SpotlightCard from '@/components/ui/spotlight-card';
 import { GridScan } from '@/components/ui/grid-scan';
 
-
-
-
 const features = [
   {
     icon: <Linkedin className="h-6 w-6" />,
@@ -37,10 +34,10 @@ export default function Home() {
   const { user, isUserLoading } = useUser();
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground pt-44">
+    <div className="flex flex-col min-h-screen bg-background text-foreground pt-32">
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative flex h-screen min-h-[700px] items-center justify-center overflow-hidden -mt-44">
+        <section className="relative flex h-screen min-h-[700px] items-center justify-center overflow-hidden -mt-32">
           <div className="absolute inset-0 z-0">
           <ColorBends
             colors={["#ff5c7a", "#8a5cff", "#00ffd1"]}
