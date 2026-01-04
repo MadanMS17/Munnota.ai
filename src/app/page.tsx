@@ -37,35 +37,10 @@ export default function Home() {
   const { user, isUserLoading } = useUser();
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex h-20 items-center justify-between">
-            <AppLogo />
-            <div className="flex items-center gap-2">
-                {!isUserLoading && !user && (
-                    <>
-                        <Button variant="ghost" asChild>
-                            <Link href="/login">Sign In</Link>
-                        </Button>
-                        <Button asChild>
-                            <Link href="/signup">Get Started</Link>
-                        </Button>
-                    </>
-                )}
-                {!isUserLoading && user && (
-                    <Button asChild>
-                        <Link href="/linkedin-post-generator">Go to App <ArrowRight className="ml-2" /></Link>
-                    </Button>
-                )}
-            </div>
-            </div>
-        </div>
-      </header>
-
+    <div className="flex flex-col min-h-screen bg-background text-foreground pt-44">
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative flex h-screen min-h-[700px] items-center justify-center overflow-hidden pt-20">
+        <section className="relative flex h-screen min-h-[700px] items-center justify-center overflow-hidden -mt-44">
           <div className="absolute inset-0 z-0">
           <ColorBends
             colors={["#ff5c7a", "#8a5cff", "#00ffd1"]}
@@ -88,9 +63,16 @@ export default function Home() {
               CareerFlow.ai is your AI co-pilot for navigating the job market. From resumes to interviews, we give you the tools to succeed.
             </p>
             <div className="mt-10">
-              <Button size="lg" asChild className="bg-white text-black hover:bg-white/90">
-                <Link href="/signup">Start for Free <ArrowRight className="ml-2" /></Link>
-              </Button>
+                {!isUserLoading && !user && (
+                    <Button size="lg" asChild className="bg-white text-black hover:bg-white/90">
+                        <Link href="/signup">Start for Free <ArrowRight className="ml-2" /></Link>
+                    </Button>
+                )}
+                {!isUserLoading && user && (
+                    <Button size="lg" asChild className="bg-white text-black hover:bg-white/90">
+                        <Link href="/linkedin-post-generator">Go to App <ArrowRight className="ml-2" /></Link>
+                    </Button>
+                )}
             </div>
           </div>
         </section>
@@ -170,37 +152,6 @@ export default function Home() {
             </div>
         </section>
       </main>
-
-      <footer className="py-16 bg-card border-t border-border">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-muted-foreground">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
-                {/* Column 1: Company Info */}
-                <div>
-                    <AppLogo className="justify-center md:justify-start mb-4"/>
-                    <p className="text-sm">&copy; {new Date().getFullYear()} CareerFlow.ai. All rights reserved.</p>
-                </div>
-                {/* Column 2: Links */}
-                <div className="flex flex-col items-center md:items-start gap-2">
-                    <h3 className="font-semibold text-foreground mb-2">Links</h3>
-                    <Link href="#" className="hover:text-primary transition-colors">About</Link>
-                    <Link href="#" className="hover:text-primary transition-colors">Blogs</Link>
-                    <Link href="#" className="hover:text-primary transition-colors">Career</Link>
-                </div>
-                {/* Column 3: Social Icons */}
-                <div className="flex flex-col items-center md:items-start gap-2">
-                    <h3 className="font-semibold text-foreground mb-2">Community</h3>
-                    <div className="flex gap-4 justify-center md:justify-start">
-                        <Link href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-                            <Github className="h-6 w-6 hover:text-primary transition-colors" />
-                        </Link>
-                        <Link href="https://gdg.community.dev/" target="_blank" rel="noopener noreferrer" aria-label="Google Developer Groups">
-                            <Users className="h-6 w-6 hover:text-primary transition-colors" />
-                        </Link>
-                    </div>
-                </div>
-            </div>
-        </div>
-      </footer>
     </div>
   );
 }

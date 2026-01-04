@@ -4,7 +4,7 @@ interface PageShellProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function PageShell({ children, className, ...props }: PageShellProps) {
     return (
-        <div className={cn("flex-1 pt-24 lg:pt-28", className)} {...props}>
+        <div className={cn("flex-1 pt-44", className)} {...props}>
             <main className="p-4 sm:p-6 lg:p-8">
                 {children}
             </main>

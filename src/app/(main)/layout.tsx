@@ -1,5 +1,4 @@
 'use client'
-import { MainSidebar } from "@/components/main-sidebar";
 import { PageShell } from "@/components/page-shell";
 import { useUser } from "@/firebase";
 import { useRouter } from "next/navigation";
@@ -50,11 +49,8 @@ export default function MainLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <MainSidebar />
-      <PageShell>
+    <PageShell>
         {children}
-      </PageShell>
-    </div>
+    </PageShell>
   );
 }

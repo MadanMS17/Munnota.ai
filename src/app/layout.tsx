@@ -2,6 +2,10 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { MainSidebar } from '@/components/main-sidebar';
+import { AppLogo } from '@/components/app-logo';
+import Link from 'next/link';
+import { Github, Users } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'CareerFlow.ai',
@@ -22,12 +26,45 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <FirebaseClientProvider>
-          {children}
+          <div className="flex min-h-screen flex-col">
+            <MainSidebar />
+            <div className="flex-1">
+              {children}
+            </div>
+            <footer className="py-16 bg-card border-t border-border">
+              <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-muted-foreground">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                      {/* Column 1: Company Info */}
+                      <div>
+                          <AppLogo className="justify-center md:justify-start mb-4"/>
+                          <p className="text-sm">&copy; {new Date().getFullYear()} CareerFlow.ai. All rights reserved.</p>
+                      </div>
+                      {/* Column 2: Links */}
+                      <div className="flex flex-col items-center md:items-start gap-2">
+                          <h3 className="font-semibold text-foreground mb-2">Links</h3>
+                          <Link href="#" className="hover:text-primary transition-colors">About</Link>
+                          <Link href="#" className="hover:text-primary transition-colors">Blogs</Link>
+                          <Link href="#" className="hover:text-primary transition-colors">Career</Link>
+                      </div>
+                      {/* Column 3: Social Icons */}
+                      <div className="flex flex-col items-center md:items-start gap-2">
+                          <h3 className="font-semibold text-foreground mb-2">Community</h3>
+                          <div className="flex gap-4 justify-center md:justify-start">
+                              <Link href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                                  <Github className="h-6 w-6 hover:text-primary transition-colors" />
+                              </Link>
+                              <Link href="https://gdg.community.dev/" target="_blank" rel="noopener noreferrer" aria-label="Google Developer Groups">
+                                  <Users className="h-6 w-6 hover:text-primary transition-colors" />
+                              </Link>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+            </footer>
+          </div>
           <Toaster />
         </FirebaseClientProvider>
       </body>
     </html>
   );
 }
-
-    
