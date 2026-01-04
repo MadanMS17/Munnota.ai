@@ -7,6 +7,7 @@ import { ArrowRight, Bot, Compass, FileText, Linkedin } from 'lucide-react';
 import ColorBends from '@/components/color-bends-background';
 import SpotlightCard from '@/components/ui/spotlight-card';
 import { GridScan } from '@/components/ui/grid-scan';
+import Threads from '@/components/ui/threads';
 
 
 
@@ -66,18 +67,18 @@ export default function Home() {
         {/* Hero Section */}
         <section className="relative flex h-screen min-h-[700px] items-center justify-center overflow-hidden pt-20">
           <div className="absolute inset-0 z-0">
-            <ColorBends
-              rotation={-180}
-              autoRotate={-2}
-              speed={0.5}
-              scale={1.5}
-              frequency={1.2}
-              warpStrength={1.2}
-              mouseInfluence={2}
-              parallax={1.1}
-              noise={0.71}
-              transparent={true}
-            />
+          <ColorBends
+            rotation={-180}
+            autoRotate={-2}
+            speed={0.5}
+            scale={1.5}
+            frequency={1.2}
+            warpStrength={1.2}
+            mouseInfluence={2}
+            parallax={1.1}
+            noise={0.71}
+            transparent={true}
+          />
           </div>
           <div className="relative z-10 text-center text-white px-4">
             <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight">
@@ -136,8 +137,15 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="py-8 bg-card border-t border-border">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground">
+      <footer className="relative py-8 bg-card border-t border-border overflow-hidden">
+        <div className="absolute inset-0 z-0">
+            <Threads
+                amplitude={1}
+                distance={0}
+                enableMouseInteraction={true}
+            />
+        </div>
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground">
             <AppLogo className="justify-center mb-4"/>
             <p>&copy; {new Date().getFullYear()} CareerFlow.ai. All rights reserved.</p>
         </div>
