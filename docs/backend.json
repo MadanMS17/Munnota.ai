@@ -225,7 +225,7 @@
         }
       },
       {
-        "path": "/users/{userId}/linkedin_posts/{linkedInPostId}",
+        "path": "/posts/{userId}/linkedin_posts/{linkedInPostId}",
         "definition": {
           "entityName": "LinkedInPost",
           "schema": {

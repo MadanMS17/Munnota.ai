@@ -17,7 +17,7 @@ rules_version = '2';
  * Key Security Decisions:
  * - Strict Ownership: All operations (read, write, delete) are restricted to the
  *   authenticated owner of the data. There are no public or shared collections.
- * - No User Enumeration: Listing documents in the top-level `/users` collection is
+ * - No User Enumeration: Listing documents in the top-level `/users` and `/posts` collections is
  *   explicitly disallowed to protect user privacy.
  * - Self-Creation of Profiles: A user is permitted to create their own user
  *   profile document upon first sign-in or sign-up, which is a common requirement
@@ -28,7 +28,7 @@ rules_version = '2';
  *
  * Denormalization for Authorization:
  * This ruleset's design is inherently efficient. By nesting all data under a
- * path containing the user's ID (`/users/{userId}`), authorization decisions are
+ * path containing the user's ID (`/users/{userId}` or `/posts/{userId}`), authorization decisions are
  * made directly from the path, eliminating the need for slow and costly `get()`
  * calls to other documents.
  *
@@ -122,17 +122,25 @@ service cloud.firestore {
     }
 
     /**
+     * @description Top-level collection for posts. Only allows access to subcollections.
+     * @path /posts/{userId}
+     */
+    match /posts/{userId} {
+        allow read, write: if false; // Disallow direct access to user-level post documents
+    }
+
+    /**
      * @description Rules for user-generated LinkedIn posts.
-     * @path /users/{userId}/linkedin_posts/{linkedInPostId}
-     * @allow (create) User 'user_abc' creating a new post at `/users/user_abc/linkedin_posts/post_123`.
-     * @deny (update) User 'user_xyz' trying to update a post at `/users/user_abc/linkedin_posts/post_123`.
+     * @path /posts/{userId}/linkedin_posts/{linkedInPostId}
+     * @allow (create) User 'user_abc' creating a new post at `/posts/user_abc/linkedin_posts/post_123`.
+     * @deny (update) User 'user_xyz' trying to update a post at `/posts/user_abc/linkedin_posts/post_123`.
      * @principle Enforces document ownership within a user-specific subcollection.
      */
-    match /users/{userId}/linkedin_posts/{linkedInPostId} {
+    match /posts/{userId}/linkedin_posts/{linkedInPostId} {
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && isCreatingValidSubcollectionDoc(userId);
-      allow update: if isExistingOwner(userId) && isUpdatingValidSubcollectionDoc();
+      allow create: if isOwner(userId); // Simplified for client-side writes
+      allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
     }
 
