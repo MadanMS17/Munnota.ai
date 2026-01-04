@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AppLogo } from '@/components/app-logo';
 import { ArrowRight, Bot, Compass, FileText, Github, Linkedin, Users, Zap } from 'lucide-react';
-import ColorBends from '@/components/color-bends-background';
 import SpotlightCard from '@/components/ui/spotlight-card';
 import { GridScan } from '@/components/ui/grid-scan';
 
@@ -37,21 +36,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative flex h-[calc(100vh-8rem)] min-h-[700px] items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 z-0">
-          <ColorBends
-            colors={["#ff5c7a", "#8a5cff", "#00ffd1"]}
-            rotation={-180}
-            autoRotate={-2}
-            speed={0.5}
-            scale={1.5}
-            frequency={1.2}
-            mouseInfluence={2}
-            parallax={1.1}
-            noise={0.08}
-            transparent={true}
-          />
-          </div>
+        <section className="relative flex h-[calc(100vh-8rem)] min-h-[700px] items-center justify-center overflow-hidden pt-32">
           <div className="relative z-10 text-center text-white px-4">
             <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight">
               Land Your Dream Job, Faster.
