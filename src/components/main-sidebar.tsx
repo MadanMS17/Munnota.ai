@@ -76,6 +76,10 @@ export function MainSidebar() {
                 <Button variant="outline" size="icon"><LayoutDashboard className="h-5 w-5" /></Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-72 flex flex-col p-0">
+                <SheetHeader className="sr-only">
+                  <SheetTitle>Main Menu</SheetTitle>
+                  <SheetDescription>Navigation links for the application.</SheetDescription>
+                </SheetHeader>
                 {navContent}
             </SheetContent>
           </Sheet>
