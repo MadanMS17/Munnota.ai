@@ -57,7 +57,7 @@ export function MainSidebar() {
     <>
       {/* Desktop Header */}
       <header className="hidden lg:flex fixed top-4 left-1/2 -translate-x-1/2 z-50">
-        <div className="flex items-center justify-between gap-8 h-16 px-4 rounded-full bg-background/50 backdrop-blur-lg border border-border/20 shadow-lg">
+        <div className="flex items-center justify-between gap-8 h-16 px-4 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg">
           <Link href="/linkedin-post-generator">
             <AppLogo />
           </Link>

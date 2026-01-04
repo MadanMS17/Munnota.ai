@@ -67,7 +67,6 @@ export default function Home() {
         <section className="relative flex h-screen min-h-[700px] items-center justify-center overflow-hidden pt-20">
           <div className="absolute inset-0 z-0">
             <ColorBends
-              colors={["#4a00e0", "#8e2de2", "#00c6ff"]}
               rotation={-180}
               autoRotate={-2}
               speed={0.5}
