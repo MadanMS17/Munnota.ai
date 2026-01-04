@@ -34,10 +34,10 @@ export default function Home() {
   const { user, isUserLoading } = useUser();
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground pt-32">
+    <div className="flex flex-col min-h-screen bg-background text-foreground">
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative flex h-screen min-h-[700px] items-center justify-center overflow-hidden -mt-32">
+        <section className="relative flex h-[calc(100vh-8rem)] min-h-[700px] items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0">
           <ColorBends
             colors={["#ff5c7a", "#8a5cff", "#00ffd1"]}
