@@ -27,14 +27,14 @@ export default function RootLayout({
       <body className="font-body antialiased flex flex-col min-h-screen">
         <FirebaseClientProvider>
           <header className="fixed top-4 left-0 right-0 z-50 px-4">
-              <div className="container mx-auto flex items-center justify-between h-16 px-6 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg">
+              <div className="container mx-auto flex w-full items-center justify-between h-16 px-6 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg">
                   <Link href="/">
                       <AppLogo />
                   </Link>
                   <UserButton />
               </div>
           </header>
-          <div className="flex-1 flex flex-col pt-24">
+          <div className="flex-1 flex flex-col pt-32">
             {children}
           </div>
           <footer className="py-16 bg-card border-t border-border">
