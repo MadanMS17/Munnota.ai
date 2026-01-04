@@ -7,8 +7,7 @@ import {
   generateLinkedInPost,
   GenerateLinkedInPostInput,
 } from '@/ai/flows/generate-linkedin-post';
-import { storeAndRecallLinkedInPosts } from '@/ai/flows/store-and-recall-linkedin-posts';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -35,6 +34,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/page-header';
 import { Bot, Clipboard, Loader2, Save } from 'lucide-react';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 
 const formSchema = z.object({
   projectDetails: z.string().min(20, {
@@ -47,6 +47,7 @@ const formSchema = z.object({
 
 export default function LinkedInPostGeneratorPage() {
   const { user } = useUser();
+  const firestore = useFirestore();
   const { toast } = useToast();
   const [generatedPost, setGeneratedPost] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -78,17 +79,11 @@ export default function LinkedInPostGeneratorPage() {
         projectDetails: values.projectDetails,
         tone: values.tone,
       };
-      
-      const previousPostsPrompt = await storeAndRecallLinkedInPosts({
-        userId: user.uid,
-        newPost: "", // Not storing yet
-        prompt: `Project Details: ${values.projectDetails}\nTone: ${values.tone}`
-      });
 
-      const result = await generateLinkedInPost({
-        ...input,
-        projectDetails: previousPostsPrompt.updatedPrompt,
-      });
+      // We are not using the storeAndRecall flow anymore.
+      // You can add logic here to fetch previous posts from Firestore if needed to provide context.
+      
+      const result = await generateLinkedInPost(input);
       
       setGeneratedPost(result.post);
     } catch (error) {
@@ -112,14 +107,16 @@ export default function LinkedInPostGeneratorPage() {
   };
 
   const handleSavePost = async () => {
-      if (!user || !generatedPost) return;
+      if (!user || !generatedPost || !firestore) return;
 
       setIsSaving(true);
       try {
-        await storeAndRecallLinkedInPosts({
-            userId: user.uid,
-            newPost: generatedPost,
-            prompt: "", // Not needed for saving
+        const postsCollectionRef = collection(firestore, 'posts', user.uid, 'linkedin_posts');
+        await addDoc(postsCollectionRef, {
+            post: generatedPost,
+            timestamp: serverTimestamp(),
+            tone: form.getValues('tone'),
+            projectDetails: form.getValues('projectDetails'),
         });
         toast({
             title: "Post Saved",
