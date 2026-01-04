@@ -57,7 +57,7 @@ export function MainSidebar() {
     <>
       {/* Desktop Header */}
       <header className="hidden lg:flex fixed top-4 left-1/2 -translate-x-1/2 z-50">
-        <div className="flex items-center justify-between gap-8 h-16 px-4 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg">
+        <div className="flex items-center justify-between gap-8 h-32 px-4 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg">
           <Link href="/linkedin-post-generator">
             <AppLogo />
           </Link>
@@ -68,7 +68,7 @@ export function MainSidebar() {
       
       {/* Mobile Header */}
       <header className="lg:hidden sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center">
+        <div className="container flex h-28 items-center">
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon" className="mr-4">
