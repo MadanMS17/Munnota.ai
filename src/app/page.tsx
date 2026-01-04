@@ -2,8 +2,7 @@
 import { useUser } from '@/firebase';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { AppLogo } from '@/components/app-logo';
-import { ArrowRight, Bot, BotMessageSquare, Compass, FileText, Github, Linkedin, Users, Zap } from 'lucide-react';
+import { ArrowRight, BotMessageSquare, Compass, FileText, Linkedin, Zap } from 'lucide-react';
 import SpotlightCard from '@/components/ui/spotlight-card';
 import dynamic from 'next/dynamic';
 
@@ -46,7 +45,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative flex h-[calc(100vh-8rem)] min-h-[700px] items-center justify-center overflow-hidden">
+        <section className="relative flex h-screen min-h-[700px] items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0 bg-background">
             <FloatingLines
                 enabledWaves={['top', 'middle', 'bottom']}
@@ -63,7 +62,7 @@ export default function Home() {
               Land Your Dream Job, Faster.
             </h1>
             <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-white/80">
-              CareerFlow.ai is your AI co-pilot for navigating the job market. From resumes to interviews, we give you the tools to succeed.
+              CareerFlow.ai is your AI co-pilot for navigating the job market. From skills to interviews, we enable you to succeed at greater speed.
             </p>
             <div className="mt-10">
                 {!isUserLoading && !user && (
@@ -97,13 +96,7 @@ export default function Home() {
                 />
             </div>
             <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center">
-                    <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">The Ultimate Toolkit for Career Success</h2>
-                    <p className="mt-6 max-w-3xl mx-auto text-lg text-muted-foreground">
-                        Stop guessing what recruiters want to see. Get data-driven insights and enhance your skills.
-                    </p>
-                </div>
-                <div className="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
                     {features.map((feature) => (
                         <Link href={feature.href} key={feature.title}>
                             <SpotlightCard
