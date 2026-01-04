@@ -74,11 +74,9 @@ const RenderLine = ({ line }: { line: string }) => {
 const parseRoadmap = (text: string) => {
     if (!text) return [];
     
-    // The regex now looks for lines that start with **Week...** and are enclosed in asterisks
     const weekHeaders = text.match(/\*\*.+?\*\*/g) || [];
     if (weekHeaders.length === 0) return [];
     
-    // Create a regex pattern from the found headers to split the text
     const splitPattern = new RegExp(`(${weekHeaders.map(h => h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'g');
     const parts = text.split(splitPattern).filter(p => p.trim());
 
@@ -96,27 +94,19 @@ const parseRoadmap = (text: string) => {
 };
 
 const Suggestions = ({ suggestions }: { suggestions: string }) => {
-    // Split the text at the first occurrence of "1. " or "1. **" to separate the intro.
     const introMatch = suggestions.match(/^(.*?)(?=1\.\s)/s);
     const intro = introMatch ? introMatch[1].trim() : '';
-    
-    // The rest of the string contains the numbered items.
     const itemsText = introMatch ? suggestions.substring(introMatch[0].length) : suggestions;
   
-    // Split the rest of the text into individual suggestion items.
-    // This regex looks for a number followed by a period and a space.
     const suggestionItems = itemsText.split(/\s*(?=\d+\.\s)/).filter(s => s.trim().length > 0);
   
     return (
       <div className="space-y-4">
         {intro && <p className="text-muted-foreground mb-6">{intro}</p>}
         {suggestionItems.map((item, index) => {
-          // This regex captures the number, the title (which might be bold), and the description.
-          // It looks for a number, period, space, then captures the text until a colon, and then the rest.
           const match = item.match(/(\d+)\.\s(?:_|\*)*(.+?)(?:_|\*)*:\s*(.*)/s);
           
           if (!match) {
-            // Fallback for items that don't match the "Title: Description" format
             return <p key={index} className="text-muted-foreground">{item.replace(/\*\*/g, '')}</p>;
           }
           
@@ -289,7 +279,7 @@ export default function HistoryPage() {
                         <AccordionItem value={analysis.id}>
                             <AccordionTrigger className="text-md font-semibold hover:no-underline text-left p-4 rounded-lg bg-muted/30 border">
                                 <div className="flex justify-between items-center w-full">
-                                    <div>
+                                    <div className="w-full overflow-hidden">
                                         <p className="font-semibold">Overall Score: <span className="text-primary">{analysis.overallScore}/100</span></p>
                                         <p className="text-sm text-muted-foreground truncate">For job: {analysis.jobDescription}</p>
                                     </div>
