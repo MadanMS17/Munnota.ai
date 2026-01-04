@@ -39,33 +39,42 @@ const ScoreCard = ({ title, score, description }: { title: string; score: number
 )
 
 const Suggestions = ({ suggestions }: { suggestions: string }) => {
-  const suggestionItems = suggestions
-    .split(/\s*(?=\d+\.\s\*\*)/)
-    .filter(s => s.trim().length > 0);
-
-  return (
-    <div className="space-y-4">
-      {suggestionItems.map((item, index) => {
-        const match = item.match(/(\d+)\.\s\*\*(.*?):\*\*\s*(.*)/s);
-        if (!match) {
-          return <p key={index}>{item}</p>;
-        }
-        const [, number, title, description] = match;
-        return (
-          <div key={number} className="flex gap-4 items-start">
-            <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold mt-1">
-                {number}
+    // Split the text at the first occurrence of "1. **" to separate the intro.
+    const parts = suggestions.split(/1\.\s\*\*/);
+    const intro = parts.length > 1 ? parts[0].trim() : '';
+    // Re-add the "1. **" to the beginning of the rest of the string to process all items uniformly.
+    const itemsText = parts.length > 1 ? `1. **${parts.slice(1).join('1. **')}` : suggestions;
+  
+    // Split the rest of the text into individual suggestion items.
+    // The regex looks for a number, a period, a space, and then two asterisks.
+    const suggestionItems = itemsText.split(/\s*(?=\d+\.\s\*\*(.*?):\*\*)/).filter(s => s.trim().length > 0);
+  
+    return (
+      <div className="space-y-4">
+        {intro && <p className="text-muted-foreground mb-6">{intro}</p>}
+        {suggestionItems.map((item, index) => {
+          // This regex captures the number, the title inside the asterisks, and the description.
+          const match = item.match(/(\d+)\.\s\*\*(.*?):\*\*\s*(.*)/s);
+          if (!match) {
+            // This will render any text that doesn't match the numbered list format, like the intro if it wasn't split correctly.
+            return <p key={index} className="text-muted-foreground">{item.replace(/\*\*/g, '')}</p>;
+          }
+          const [, number, title, description] = match;
+          return (
+            <div key={number} className="flex gap-4 items-start">
+              <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold mt-1">
+                  {number}
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground">{title}</h4>
+                <p className="text-muted-foreground">{description.replace(/\*\*/g, '')}</p>
+              </div>
             </div>
-            <div>
-              <h4 className="font-semibold text-foreground">{title}</h4>
-              <p className="text-muted-foreground">{description}</p>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
+          );
+        })}
+      </div>
+    );
+  };
 
 
 export default function ResumeAnalyzerPage() {
