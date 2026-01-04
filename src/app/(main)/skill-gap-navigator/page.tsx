@@ -17,8 +17,8 @@ import { ScrollArea }from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const formSchema = z.object({
-  targetRole: z.string().min(3, 'Target role must be at least 3 characters.'),
-  jobDescription: z.string().min(50, 'Job description must be at least 50 characters.'),
+  targetRole: z.string().min(3, 'Target role must be at least 3 characters.').default(''),
+  jobDescription: z.string().min(50, 'Job description must be at least 50 characters.').default(''),
 });
 
 // A simple component to parse and render a line of text, making URLs clickable
@@ -87,19 +87,15 @@ export default function SkillGapNavigatorPage() {
     // Helper to parse the roadmap text into structured data
     const parseRoadmap = (text: string) => {
         if (!text) return [];
+        // Split by week headers, keeping the headers
         return text
-            .split(/\*\*(Week \d+:.*?)\*\*/)
-            .filter(Boolean)
-            .map(part => part.trim())
-            .reduce((acc, part, index) => {
-                if (index % 2 === 0) {
-                    // This is a week title
-                    acc.push({ title: part, content: '' });
-                } else {
-                    // This is the content for the previous week title
-                    if (acc.length > 0) {
-                        acc[acc.length - 1].content = part;
-                    }
+            .split(/(\*\*Week \d+:.*?\*\*)/)
+            .filter(part => part.trim() !== '')
+            .reduce((acc, part, index, array) => {
+                if (part.startsWith('**Week')) {
+                    const title = part.replace(/\*\*/g, '');
+                    const content = array[index + 1] || '';
+                    acc.push({ title: title.trim(), content: content.trim() });
                 }
                 return acc;
             }, [] as { title: string, content: string }[]);
@@ -176,13 +172,16 @@ export default function SkillGapNavigatorPage() {
                     <Accordion type="single" collapsible className="w-full" defaultValue="item-0">
                         {parsedRoadmap.map((week, index) => (
                             <AccordionItem value={`item-${index}`} key={index}>
-                                <AccordionTrigger className="text-lg font-semibold hover:no-underline">
+                                <AccordionTrigger className="text-lg font-semibold hover:no-underline text-left">
                                     {week.title}
                                 </AccordionTrigger>
                                 <AccordionContent>
                                     <div className="prose prose-invert max-w-none text-muted-foreground space-y-2">
                                         {week.content.split('\n').map((line, i) => {
                                             const trimmedLine = line.trim().replace(/\*\*/g, '');
+                                            if (!trimmedLine) return null;
+
+                                            // Render list items
                                             if (trimmedLine.startsWith('- ')) {
                                                 return (
                                                     <p key={i} className="ml-4 flex items-start gap-2">
@@ -193,10 +192,14 @@ export default function SkillGapNavigatorPage() {
                                                     </p>
                                                 );
                                             }
-                                            if (trimmedLine) {
+                                            
+                                            // Render sub-headings (like Resources, GitHub)
+                                            if (trimmedLine.endsWith(':')) {
                                                 return <h4 key={i} className="font-semibold text-foreground mt-4 mb-1"><RenderLine line={trimmedLine} /></h4>
                                             }
-                                            return null;
+
+                                            // Render normal text
+                                            return <p key={i}><RenderLine line={trimmedLine}/></p>
                                         })}
                                     </div>
                                 </AccordionContent>
