@@ -6,6 +6,9 @@ import { AppLogo } from '@/components/app-logo';
 import Link from 'next/link';
 import { Github, Users } from 'lucide-react';
 import { UserButton } from '@/components/user-button';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
   title: 'CareerFlow.ai',
@@ -19,12 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body antialiased flex flex-col min-h-screen">
+      <body className={`${inter.variable} font-body antialiased flex flex-col min-h-screen`}>
         <FirebaseClientProvider>
           <header className="fixed top-4 left-0 right-0 z-50 px-4">
               <div className="container mx-auto flex w-full items-center justify-between h-16 px-6 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg">

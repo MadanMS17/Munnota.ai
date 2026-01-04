@@ -5,8 +5,11 @@ import { Button } from '@/components/ui/button';
 import { AppLogo } from '@/components/app-logo';
 import { ArrowRight, Bot, BotMessageSquare, Compass, FileText, Github, Linkedin, Users, Zap } from 'lucide-react';
 import SpotlightCard from '@/components/ui/spotlight-card';
-import { GridScan } from '@/components/ui/grid-scan';
-import FloatingLines from '@/components/ui/floating-lines';
+import dynamic from 'next/dynamic';
+
+const FloatingLines = dynamic(() => import('@/components/ui/floating-lines'), { ssr: false });
+const GridScan = dynamic(() => import('@/components/ui/grid-scan'), { ssr: false });
+
 
 const features = [
   {
