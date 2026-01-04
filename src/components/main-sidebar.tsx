@@ -70,7 +70,7 @@ export function MainSidebar() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                    'flex flex-col items-center gap-1 p-2 rounded-md transition-colors text-xs font-medium h-20 justify-center w-24',
+                    'flex flex-col items-center gap-1 p-2 rounded-2xl transition-colors text-xs font-medium h-20 justify-center w-24',
                     pathname === item.href
                         ? 'bg-primary text-primary-foreground'
                         : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
@@ -95,11 +95,11 @@ export function MainSidebar() {
             </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-72 flex flex-col p-0">
-                <SheetHeader className='p-4'>
-                    <SheetTitle className="sr-only">Features Menu</SheetTitle>
-                    <Link href="/">
-                        <AppLogo />
-                    </Link>
+                <SheetHeader className='p-4 border-b'>
+                  <Link href="/">
+                      <AppLogo />
+                  </Link>
+                  <SheetTitle className="sr-only">Features Menu</SheetTitle>
                 </SheetHeader>
                 {mobileNavLinks}
             </SheetContent>
