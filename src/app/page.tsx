@@ -74,7 +74,7 @@ export default function Home() {
               mouseInfluence={0.5}
               parallax={0.3}
               noise={0}
-              transparent={false}
+              transparent={true}
             />
           </div>
           <div className="relative z-10 text-center text-white px-4">
