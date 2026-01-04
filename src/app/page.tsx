@@ -3,7 +3,7 @@ import { useUser } from '@/firebase';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AppLogo } from '@/components/app-logo';
-import { ArrowRight, Bot, Compass, FileText, Linkedin } from 'lucide-react';
+import { ArrowRight, Bot, Compass, FileText, Github, Linkedin, Users } from 'lucide-react';
 import ColorBends from '@/components/color-bends-background';
 import SpotlightCard from '@/components/ui/spotlight-card';
 import { GridScan } from '@/components/ui/grid-scan';
@@ -101,7 +101,7 @@ export default function Home() {
                 <GridScan
                     sensitivity={0.55}
                     lineThickness={1}
-                    linesColor="#200040" 
+                    linesColor="#200040"
                     gridScale={0.15}
                     scanColor="#8e2de2"
                     scanOpacity={0.4}
@@ -120,8 +120,8 @@ export default function Home() {
                 </div>
                 <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                     {features.map((feature) => (
-                        <SpotlightCard 
-                          key={feature.title} 
+                        <SpotlightCard
+                          key={feature.title}
                           className="p-8 transition-all duration-300 transform hover:-translate-y-2 border-white/10"
                           spotlightColor="rgba(41, 98, 255, 1)"
                         >
@@ -137,7 +137,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="relative py-8 bg-card border-t border-border overflow-hidden">
+      <footer className="relative py-16 bg-card border-t border-border overflow-hidden">
         <div className="absolute inset-0 z-0">
             <Threads
                 amplitude={1}
@@ -145,9 +145,33 @@ export default function Home() {
                 enableMouseInteraction={true}
             />
         </div>
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground">
-            <AppLogo className="justify-center mb-4"/>
-            <p>&copy; {new Date().getFullYear()} CareerFlow.ai. All rights reserved.</p>
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-muted-foreground">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                {/* Column 1: Company Info */}
+                <div>
+                    <AppLogo className="justify-center md:justify-start mb-4"/>
+                    <p className="text-sm">&copy; {new Date().getFullYear()} CareerFlow.ai. All rights reserved.</p>
+                </div>
+                {/* Column 2: Links */}
+                <div className="flex flex-col items-center md:items-start gap-2">
+                    <h3 className="font-semibold text-foreground mb-2">Links</h3>
+                    <Link href="#" className="hover:text-primary transition-colors">About</Link>
+                    <Link href="#" className="hover:text-primary transition-colors">Blogs</Link>
+                    <Link href="#" className="hover:text-primary transition-colors">Career</Link>
+                </div>
+                {/* Column 3: Social Icons */}
+                <div className="flex flex-col items-center md:items-start gap-2">
+                    <h3 className="font-semibold text-foreground mb-2">Community</h3>
+                    <div className="flex gap-4 justify-center md:justify-start">
+                        <Link href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                            <Github className="h-6 w-6 hover:text-primary transition-colors" />
+                        </Link>
+                        <Link href="https://gdg.community.dev/" target="_blank" rel="noopener noreferrer" aria-label="Google Developer Groups">
+                            <Users className="h-6 w-6 hover:text-primary transition-colors" />
+                        </Link>
+                    </div>
+                </div>
+            </div>
         </div>
       </footer>
     </div>
