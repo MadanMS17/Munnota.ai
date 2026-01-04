@@ -96,7 +96,13 @@ export default function Home() {
                 />
             </div>
             <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                <div className="text-center">
+                    <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">The Ultimate Toolkit for Career Success</h2>
+                    <p className="mt-6 max-w-3xl mx-auto text-lg text-muted-foreground">
+                        Stop guessing what recruiters want to see. Get data-driven insights and enhance your skills.
+                    </p>
+                </div>
+                <div className="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
                     {features.map((feature) => (
                         <Link href={feature.href} key={feature.title}>
                             <SpotlightCard
