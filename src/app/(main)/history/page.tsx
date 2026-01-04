@@ -71,17 +71,20 @@ const RenderLine = ({ line }: { line: string }) => {
 
 const parseRoadmap = (text: string) => {
     if (!text) return [];
-    return text
-        .split(/(\*\*Week \d+:.*?\*\*)/)
-        .filter(part => part.trim() !== '')
-        .reduce((acc, part, index, array) => {
-            if (part.startsWith('**Week')) {
-                const title = part.replace(/\*\*/g, '');
-                const content = array[index + 1] || '';
-                acc.push({ title: title.trim(), content: content.trim() });
-            }
-            return acc;
-        }, [] as { title: string, content: string }[]);
+    // Split by week headers, but keep the headers
+    const weeks = text.split(/(\*\*Week\s\d+:[^\*]+\*\*)/g).filter(p => p.trim());
+    const result: { title: string, content: string }[] = [];
+
+    // The regex split results in [delimiter, content, delimiter, content, ...]
+    for (let i = 0; i < weeks.length; i += 2) {
+      if (weeks[i] && weeks[i+1]) {
+        result.push({
+          title: weeks[i].replace(/\*\*/g, ''),
+          content: weeks[i+1].trim(),
+        });
+      }
+    }
+    return result;
 };
 
 export default function HistoryPage() {
