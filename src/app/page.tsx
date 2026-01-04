@@ -125,6 +125,7 @@ export default function Home() {
         {/* FOMO Section */}
         <section className="relative py-20 sm:py-32 overflow-hidden">
             <Particles
+                className="absolute inset-0"
                 particleColors={['#2962FF', '#39FF14']}
                 particleCount={200}
                 particleSpread={15}

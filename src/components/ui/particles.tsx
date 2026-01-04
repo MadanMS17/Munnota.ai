@@ -235,11 +235,11 @@ const Particles: React.FC<ParticlesProps> = ({
         container.removeChild(gl.canvas);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     particleCount,
     particleSpread,
     speed,
-    particleColors,
     moveParticlesOnHover,
     particleHoverFactor,
     alphaParticles,
@@ -250,7 +250,7 @@ const Particles: React.FC<ParticlesProps> = ({
     pixelRatio
   ]);
 
-  return <div ref={containerRef} className={`absolute inset-0 w-full h-full -z-10 ${className}`} />;
+  return <div ref={containerRef} className={`relative w-full h-full ${className}`} />;
 };
 
 export default Particles;
