@@ -108,7 +108,7 @@ export default function Home() {
                         <SpotlightCard 
                           key={feature.title} 
                           className="p-8 transition-all duration-300 transform hover:-translate-y-2 border-white/10"
-                          spotlightColor="rgba(41, 98, 255, 0.6)"
+                          spotlightColor="rgba(41, 98, 255, 1)"
                         >
                             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                                 {feature.icon}
