@@ -3,7 +3,7 @@ import { useUser } from '@/firebase';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AppLogo } from '@/components/app-logo';
-import { ArrowRight, Bot, Compass, FileText, Github, Linkedin, Users } from 'lucide-react';
+import { ArrowRight, Bot, Compass, FileText, Github, Linkedin, Users, Zap } from 'lucide-react';
 import ColorBends from '@/components/color-bends-background';
 import SpotlightCard from '@/components/ui/spotlight-card';
 import { GridScan } from '@/components/ui/grid-scan';
@@ -99,14 +99,14 @@ export default function Home() {
         <section className="relative py-20 sm:py-32 bg-background overflow-hidden">
             <div className="absolute inset-0 z-0">
                 <GridScan
-                    sensitivity={0.55}
+                    sensitivity={1}
                     lineThickness={1}
                     linesColor="#200040"
                     gridScale={0.15}
                     scanColor="#8e2de2"
                     scanOpacity={0.4}
                     enablePost
-                    bloomIntensity={0.2}
+                    bloomIntensity={0.5}
                     chromaticAberration={0.005}
                     noiseIntensity={0.02}
                 />
@@ -132,6 +132,24 @@ export default function Home() {
                             <p className="mt-2 text-muted-foreground">{feature.description}</p>
                         </SpotlightCard>
                     ))}
+                </div>
+            </div>
+        </section>
+
+        {/* FOMO Section */}
+        <section className="py-20 sm:py-32 bg-gray-900/50">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <Zap className="mx-auto h-16 w-16 text-primary animate-pulse" />
+                <h2 className="mt-6 text-4xl sm:text-5xl font-bold tracking-tight text-white">
+                    The Best Candidates Are Already Using AI. Are You?
+                </h2>
+                <p className="mt-6 max-w-3xl mx-auto text-lg text-muted-foreground">
+                    In today's job market, standing still is falling behind. While you're manually tailoring your resume for the tenth time, top candidates are leveraging AI to get instant feedback, generate targeted content, and chart their learning path. Don't get left in the digital dust.
+                </p>
+                <div className="mt-10">
+                    <Button size="lg" asChild>
+                        <Link href="/signup">Get Your Unfair Advantage <ArrowRight className="ml-2" /></Link>
+                    </Button>
                 </div>
             </div>
         </section>
