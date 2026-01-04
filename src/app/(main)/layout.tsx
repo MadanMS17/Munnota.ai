@@ -50,11 +50,11 @@ export default function MainLayout({
   }
 
   return (
-    <>
+    <div className="flex min-h-screen">
       <MainSidebar />
       <PageShell>
           {children}
       </PageShell>
-    </>
+    </div>
   );
 }

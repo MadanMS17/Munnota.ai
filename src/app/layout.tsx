@@ -27,8 +27,8 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <FirebaseClientProvider>
           <div className="flex min-h-screen flex-col">
-            <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-fit px-4">
-                <div className="flex items-center justify-between h-16 w-full px-6 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg">
+            <header className="fixed top-4 left-0 right-0 z-50 px-4">
+                <div className="container mx-auto flex items-center justify-between h-16 px-6 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg">
                     <Link href="/">
                         <AppLogo />
                     </Link>
