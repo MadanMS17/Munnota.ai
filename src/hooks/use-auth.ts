@@ -1,4 +1,2 @@
-import { useUser } from '@/firebase';
+import { useUser } from '@/firebase/provider';
 export const useAuth = useUser;
-
-    

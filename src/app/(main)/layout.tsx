@@ -1,9 +1,9 @@
 'use client'
 import { MainSidebar } from "@/components/main-sidebar";
 import { PageShell } from "@/components/page-shell";
-import { useAuth } from "@/firebase";
+import { useUser } from "@/firebase";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 
@@ -12,16 +12,25 @@ export default function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isUserLoading } = useAuth();
+  const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const [initialAuthCheckComplete, setInitialAuthCheckComplete] = useState(false);
 
   useEffect(() => {
-    if (!isUserLoading && !user) {
+    // This effect only runs once to determine when the initial auth state has been resolved.
+    if (!isUserLoading && !initialAuthCheckComplete) {
+      setInitialAuthCheckComplete(true);
+    }
+  }, [isUserLoading, initialAuthCheckComplete]);
+
+  useEffect(() => {
+    // This effect handles redirection after the initial auth check is complete.
+    if (initialAuthCheckComplete && !user) {
       router.push('/login');
     }
-  }, [user, isUserLoading, router]);
+  }, [user, initialAuthCheckComplete, router]);
 
-  if (isUserLoading || !user) {
+  if (!initialAuthCheckComplete || !user) {
     return (
         <div className="flex min-h-screen">
             <div className="hidden lg:flex lg:flex-col lg:w-72 border-r bg-background/50 p-4 space-y-4">

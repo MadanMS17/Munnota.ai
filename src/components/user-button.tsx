@@ -2,7 +2,7 @@
 
 import { signOut } from 'firebase/auth';
 import { LogIn, LogOut, User as UserIcon } from 'lucide-react';
-import { useAuth, useFirebase } from '@/firebase';
+import { useUser, useFirebase } from '@/firebase';
 import { Button } from './ui/button';
 import {
   DropdownMenu,
@@ -17,7 +17,7 @@ import { Skeleton } from './ui/skeleton';
 import Link from 'next/link';
 
 export function UserButton() {
-  const { user, isUserLoading: loading } = useAuth();
+  const { user, isUserLoading: loading } = useUser();
   const { auth } = useFirebase();
 
   const handleSignOut = async () => {
