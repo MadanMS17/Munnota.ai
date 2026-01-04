@@ -1,7 +1,7 @@
 'use client';
 
 import { signOut } from 'firebase/auth';
-import { LogIn, LogOut, User as UserIcon } from 'lucide-react';
+import { BarChart2, BotMessageSquare, FileText, History, LayoutDashboard, LogIn, LogOut, Linkedin, User as UserIcon } from 'lucide-react';
 import { useUser, useFirebase } from '@/firebase';
 import { Button } from './ui/button';
 import {
@@ -17,6 +17,14 @@ import { Skeleton } from './ui/skeleton';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
+
+const navItems = [
+    { href: '/linkedin-post-generator', icon: Linkedin, label: 'LinkedIn Post Generator' },
+    { href: '/resume-analyzer', icon: FileText, label: 'Resume Analyzer' },
+    { href: '/skill-gap-navigator', icon: BarChart2, label: 'Skill Gap Navigator' },
+    { href: '/mock-interviewer', icon: BotMessageSquare, label: 'AI Mock Interviewer' },
+    { href: '/history', icon: History, label: 'History' },
+];
 
 export function UserButton({ className }: { className?: string }) {
   const { user, isUserLoading: loading } = useUser();
@@ -74,6 +82,16 @@ export function UserButton({ className }: { className?: string }) {
               </p>
             </div>
           </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+            <DropdownMenuLabel>Features</DropdownMenuLabel>
+            {navItems.map(item => (
+                <DropdownMenuItem key={item.href} asChild>
+                    <Link href={item.href}>
+                        <item.icon className="mr-2 h-4 w-4" />
+                        <span>{item.label}</span>
+                    </Link>
+                </DropdownMenuItem>
+            ))}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleSignOut}>
             <LogOut className="mr-2 h-4 w-4" />

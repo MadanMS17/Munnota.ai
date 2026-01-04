@@ -3,7 +3,7 @@ import { useUser } from '@/firebase';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AppLogo } from '@/components/app-logo';
-import { ArrowRight, Bot, Compass, FileText, Github, Linkedin, Users, Zap } from 'lucide-react';
+import { ArrowRight, Bot, BotMessageSquare, Compass, FileText, Github, Linkedin, Users, Zap } from 'lucide-react';
 import SpotlightCard from '@/components/ui/spotlight-card';
 import { GridScan } from '@/components/ui/grid-scan';
 import FloatingLines from '@/components/ui/floating-lines';
@@ -27,6 +27,12 @@ const features = [
     description: 'Chart your course to a new role with a personalized learning roadmap.',
     href: '/skill-gap-navigator'
   },
+  {
+    icon: <BotMessageSquare className="h-6 w-6" />,
+    title: 'AI Mock Interviewer',
+    description: 'Practice your interview skills with a real-time AI to build confidence.',
+    href: '/mock-interviewer'
+  },
 ];
 
 
@@ -41,10 +47,10 @@ export default function Home() {
           <div className="absolute inset-0 z-0 bg-background">
             <FloatingLines
                 enabledWaves={['top', 'middle', 'bottom']}
-                lineCount={[10, 15, 20]}
-                lineDistance={[8, 6, 4]}
+                lineCount={[8, 8, 8]}
+                lineDistance={[8, 100, 4]}
                 bendRadius={5.0}
-                bendStrength={-0.5}
+                bendStrength={1}
                 interactive={true}
                 parallax={true}
             />
@@ -94,19 +100,20 @@ export default function Home() {
                         Stop guessing what recruiters want to see. Get data-driven insights and enhance your skills.
                     </p>
                 </div>
-                <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div className="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
                     {features.map((feature) => (
-                        <SpotlightCard
-                          key={feature.title}
-                          className="p-8 transition-all duration-300 transform hover:-translate-y-2 border-white/10"
-                          spotlightColor="rgba(41, 98, 255, 1)"
-                        >
-                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                                {feature.icon}
-                            </div>
-                            <h3 className="mt-6 text-xl font-bold">{feature.title}</h3>
-                            <p className="mt-2 text-muted-foreground">{feature.description}</p>
-                        </SpotlightCard>
+                        <Link href={feature.href} key={feature.title}>
+                            <SpotlightCard
+                            className="p-8 transition-all duration-300 transform hover:-translate-y-2 border-white/10 h-full flex flex-col"
+                            spotlightColor="rgba(41, 98, 255, 1)"
+                            >
+                                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                                    {feature.icon}
+                                </div>
+                                <h3 className="mt-6 text-xl font-bold">{feature.title}</h3>
+                                <p className="mt-2 text-muted-foreground flex-1">{feature.description}</p>
+                            </SpotlightCard>
+                        </Link>
                     ))}
                 </div>
             </div>
