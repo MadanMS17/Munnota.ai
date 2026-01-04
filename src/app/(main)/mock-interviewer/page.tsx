@@ -4,18 +4,19 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { PageHeader } from '@/components/page-header';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Bot, Loader2, Send, Sparkles, User, MessageSquare, Star, Mic, Keyboard, Volume2 } from 'lucide-react';
+import { Bot, Loader2, Send, Sparkles, User, MessageSquare, Star, Mic, Keyboard, Volume2, FlagOff } from 'lucide-react';
 import { aiMockInterviewer, AIMockInterviewerOutput } from '@/ai/ai-mock-interviewer';
 import { useUser } from '@/firebase';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { Avatar } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
 
 const setupSchema = z.object({
   jobDescription: z.string().min(50, 'Job description must be at least 50 characters.'),
@@ -52,6 +53,7 @@ export default function MockInterviewerPage() {
   const [jobDescription, setJobDescription] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [lastResponse, setLastResponse] = useState<AIMockInterviewerOutput | null>(null);
+  const [questionCount, setQuestionCount] = useState(0);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   // States for voice mode
@@ -163,8 +165,9 @@ export default function MockInterviewerPage() {
     try {
       const result = await aiMockInterviewer({
         jobDescription: values.jobDescription,
-        userResponse: 'Hello, thank you for having me.',
+        userResponse: 'Hello, I am ready to start the interview.',
         interviewQuestion: "Let's get started. Please introduce yourself.",
+        questionCount: 0,
       });
 
       const firstQuestion = result.nextQuestion;
@@ -172,6 +175,7 @@ export default function MockInterviewerPage() {
       if (interviewMode === 'voice') speak(firstQuestion);
 
       setLastResponse(result);
+      setQuestionCount(1);
       setIsStarted(true);
     } catch (error) {
       console.error(error);
@@ -204,22 +208,33 @@ export default function MockInterviewerPage() {
         userResponse: values.userResponse,
         interviewQuestion: lastResponse.nextQuestion,
         previousConversation: lastResponse.conversationHistory,
+        questionCount: questionCount,
       });
-
-      const nextQuestion = result.nextQuestion;
-
-      setMessages([
-          ...newMessages,
-          { 
-              role: 'assistant', 
-              content: nextQuestion, 
-              feedback: result.feedback, 
-              score: result.score 
-          }
-      ]);
+      
       setLastResponse(result);
-
-      if (interviewMode === 'voice') speak(nextQuestion);
+      
+      if (result.isInterviewOver) {
+        setMessages([
+            ...newMessages,
+            { 
+                role: 'assistant', 
+                content: "Thank you for your time. Here is your final feedback.", 
+            }
+        ]);
+      } else {
+        const nextQuestion = result.nextQuestion;
+        setMessages([
+            ...newMessages,
+            { 
+                role: 'assistant', 
+                content: nextQuestion, 
+                feedback: result.feedback, 
+                score: result.score 
+            }
+        ]);
+        setQuestionCount(prev => prev + 1);
+        if (interviewMode === 'voice') speak(nextQuestion);
+      }
 
     } catch (error) {
       console.error(error);
@@ -228,6 +243,10 @@ export default function MockInterviewerPage() {
       setIsLoading(false);
     }
   };
+
+  const handleEndInterview = async () => {
+    handleSendResponse({ userResponse: "Thank you, I'd like to end the interview now." });
+  }
   
   if (!interviewMode) {
     return (
@@ -300,6 +319,36 @@ export default function MockInterviewerPage() {
     );
   }
 
+  if (lastResponse?.isInterviewOver) {
+    return (
+        <>
+            <PageHeader title="Interview Complete" description="Here is your final report." />
+            <Card className="bg-card/50 backdrop-blur-lg border border-border/20">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Star/> Final Report</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div>
+                        <div className="flex justify-between items-center mb-2">
+                           <p className="text-lg font-semibold">Overall Score</p>
+                           <p className="text-4xl font-bold text-primary">{lastResponse.score}/100</p>
+                        </div>
+                        <Progress value={lastResponse.score} />
+                    </div>
+                    <Separator />
+                    <div>
+                        <p className="font-semibold text-lg mb-2">Final Feedback & Analysis</p>
+                        <p className="text-muted-foreground whitespace-pre-wrap">{lastResponse.feedback}</p>
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <Button onClick={() => window.location.reload()}>Start New Interview</Button>
+                </CardFooter>
+            </Card>
+        </>
+    )
+  }
+
   return (
     <>
       <PageHeader
@@ -308,8 +357,12 @@ export default function MockInterviewerPage() {
       />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-2 bg-card/50 backdrop-blur-lg border border-border/20 flex flex-col">
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className='flex items-center gap-2'><MessageSquare/> Interview Chat</CardTitle>
+                <Button variant="destructive" size="sm" onClick={handleEndInterview} disabled={isLoading}>
+                    <FlagOff className="mr-2 h-4 w-4" />
+                    End Interview
+                </Button>
             </CardHeader>
           <CardContent className="flex-1 flex flex-col">
             <ScrollArea className="flex-1 pr-4 mb-4 h-96" ref={scrollAreaRef}>
@@ -386,7 +439,7 @@ export default function MockInterviewerPage() {
                 <CardTitle className='flex items-center gap-2'><Star /> Last Response Feedback</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-            {lastResponse && messages.some(m => m.role === 'user') ? (
+            {lastResponse && messages.some(m => m.role === 'user') && lastResponse.score !== null ? (
                 <>
                     <div>
                         <div className="flex justify-between items-center mb-2">
