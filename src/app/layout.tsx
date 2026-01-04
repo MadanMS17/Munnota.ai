@@ -34,7 +34,7 @@ export default function RootLayout({
                   <UserButton />
               </div>
           </header>
-          <div className="flex-1 flex flex-col pt-32">
+          <div className="flex-1 flex flex-col">
             {children}
           </div>
           <footer className="py-16 bg-card border-t border-border">
