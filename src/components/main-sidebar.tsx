@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -7,22 +8,19 @@ import {
   History,
   LayoutDashboard,
   Linkedin,
-  Rocket,
-  Settings,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Button } from './ui/button';
 import { UserButton } from './user-button';
 import { AppLogo } from './app-logo';
+import { cn } from '@/lib/utils';
+
 
 const navItems = [
   { href: '/linkedin-post-generator', icon: Linkedin, label: 'LinkedIn Post Generator' },
@@ -35,55 +33,82 @@ const navItems = [
 export function MainSidebar() {
   const pathname = usePathname();
 
-  const navContent = (
-    <>
-      <div className="p-4">
-        <Link href="/" className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md">
-            <AppLogo />
+  const navLinks = (
+    <nav className="flex items-center space-x-2">
+      {navItems.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          className={cn(
+            'flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors',
+            pathname === item.href
+              ? 'bg-primary text-primary-foreground'
+              : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+          )}
+        >
+          <item.icon className="h-4 w-4" />
+          <span>{item.label}</span>
         </Link>
-      </div>
-      <nav className="flex-1 space-y-2 px-4">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
-              pathname === item.href
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-            }`}
-          >
-            <item.icon className="h-5 w-5" />
-            <span>{item.label}</span>
-          </Link>
-        ))}
-      </nav>
-      <div className="mt-auto p-4 space-y-4">
-        <UserButton />
-      </div>
-    </>
+      ))}
+    </nav>
   );
-
 
   return (
     <>
-      <div className="hidden lg:flex lg:flex-col lg:w-72 border-r bg-background/50">
-        {navContent}
-      </div>
-      <div className="lg:hidden p-4 fixed top-0 left-0 z-50">
-          <Sheet>
-            <SheetTrigger asChild>
-                <Button variant="outline" size="icon"><LayoutDashboard className="h-5 w-5" /></Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-72 flex flex-col p-0">
-                <SheetHeader className="sr-only">
-                  <SheetTitle>Main Menu</SheetTitle>
-                  <SheetDescription>Navigation links for the application.</SheetDescription>
-                </SheetHeader>
-                {navContent}
-            </SheetContent>
-          </Sheet>
-      </div>
+      {/* Desktop Header */}
+      <header className="hidden lg:flex fixed top-4 left-1/2 -translate-x-1/2 z-50">
+        <div className="flex items-center justify-between gap-8 h-16 px-4 rounded-full bg-background/50 backdrop-blur-lg border border-border/20 shadow-lg">
+          <Link href="/linkedin-post-generator">
+            <AppLogo />
+          </Link>
+          {navLinks}
+          <UserButton />
+        </div>
+      </header>
+      
+      {/* Mobile Header */}
+      <header className="lg:hidden sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 items-center">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon" className="mr-4">
+                  <LayoutDashboard className="h-5 w-5" />
+                  <span className="sr-only">Open Menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-72 flex flex-col p-0">
+                  <div className="p-4">
+                    <Link href="/linkedin-post-generator">
+                        <AppLogo />
+                    </Link>
+                  </div>
+                  <nav className="flex-1 space-y-2 px-4">
+                    {navItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          'flex items-center gap-3 rounded-lg px-3 py-2 transition-all',
+                          pathname === item.href
+                            ? 'bg-primary text-primary-foreground'
+                            : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                        )}
+                      >
+                        <item.icon className="h-5 w-5" />
+                        <span>{item.label}</span>
+                      </Link>
+                    ))}
+                  </nav>
+                  <div className="mt-auto p-4 space-y-4">
+                    <UserButton />
+                  </div>
+              </SheetContent>
+            </Sheet>
+            <div className="flex flex-1 items-center justify-end space-x-4">
+                <UserButton />
+            </div>
+        </div>
+      </header>
     </>
   );
 }
