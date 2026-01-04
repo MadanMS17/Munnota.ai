@@ -28,6 +28,10 @@ export default function SkillGapNavigatorPage() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      targetRole: '',
+      jobDescription: '',
+    },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
