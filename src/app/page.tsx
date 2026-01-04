@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { AppLogo } from '@/components/app-logo';
 import { ArrowRight, Bot, Compass, FileText, Linkedin } from 'lucide-react';
 import ColorBends from '@/components/color-bends-background';
+import SpotlightCard from '@/components/ui/spotlight-card';
 
 
 
@@ -104,13 +105,17 @@ export default function Home() {
                 </div>
                 <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
                     {features.map((feature) => (
-                        <div key={feature.title} className="bg-card p-8 rounded-2xl border-transparent hover:border-primary/20 border transition-all duration-300 transform hover:-translate-y-2">
+                        <SpotlightCard 
+                          key={feature.title} 
+                          className="p-8 transition-all duration-300 transform hover:-translate-y-2"
+                          spotlightColor="rgba(41, 98, 255, 0.2)"
+                        >
                             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                                 {feature.icon}
                             </div>
                             <h3 className="mt-6 text-xl font-bold">{feature.title}</h3>
                             <p className="mt-2 text-muted-foreground">{feature.description}</p>
-                        </div>
+                        </SpotlightCard>
                     ))}
                 </div>
             </div>

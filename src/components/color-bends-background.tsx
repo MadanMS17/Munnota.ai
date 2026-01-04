@@ -116,17 +116,31 @@ void main() {
 export default function ColorBends({
   className,
   style,
-  rotation = 45,
+  rotation = 0,
   speed = 0.2,
-  colors = [],
+  colors = ["#ff5c7a", "#8a5cff", "#00ffd1"],
   transparent = true,
   autoRotate = 0,
   scale = 1,
-  frequency = 1,
+  frequency = 10,
   warpStrength = 1,
-  mouseInfluence = 1,
+  mouseInfluence = 2,
   parallax = 0.5,
-  noise = 0.1
+  noise = 0
+
+  //
+
+  // rotation={-180}
+  // autoRotate={-2}
+  // speed={0.5}
+  // scale={1.5}
+  // mouseInfluence={2}
+  // parallax={1.1}
+  // noise={0.71}
+
+  //
+
+
 }: ColorBendsProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
