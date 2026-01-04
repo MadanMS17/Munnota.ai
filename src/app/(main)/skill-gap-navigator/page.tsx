@@ -60,16 +60,18 @@ export default function SkillGapNavigatorPage() {
     return (
       <Accordion type="single" collapsible className="w-full" defaultValue="item-0">
         {weeks.map((weekContent, index) => {
-          const titleMatch = weekContent.match(/\*\*Week \d+: \[([^\]]+)\]\*\*/);
-          const title = titleMatch ? titleMatch[1] : `Week ${index + 1}`;
+          const titleMatch = weekContent.match(/\*\*Week \d+: ([^\*]+)\*\*/);
+          const title = titleMatch ? titleMatch[1].trim() : `Week ${index + 1}`;
           
           return (
             <AccordionItem key={index} value={`item-${index}`}>
               <AccordionTrigger className="text-lg font-semibold text-primary">Week {index + 1}: {title}</AccordionTrigger>
               <AccordionContent>
-                <div className="prose prose-invert max-w-none text-muted-foreground whitespace-pre-wrap"
-                  dangerouslySetInnerHTML={{ __html: weekContent.replace(/\*\*[^*]+\*\*/g, (match) => `<strong>${match.replace(/\*\*/g, '')}</strong>`).replace(/- /g, '<br>- ') }}
-                />
+                <div className="prose prose-invert max-w-none text-muted-foreground whitespace-pre-wrap">
+                  {weekContent.split('\n').map((line, i) => (
+                    <p key={i} dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                  ))}
+                </div>
               </AccordionContent>
             </AccordionItem>
           )
