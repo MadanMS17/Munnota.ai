@@ -15,19 +15,22 @@ import {
 
 const features = [
   {
-    icon: <Linkedin />,
+    icon: <Linkedin className="h-6 w-6" />,
     title: 'LinkedIn Post Generator',
     description: 'Craft engaging posts that attract HR professionals and hiring managers.',
+    href: '/linkedin-post-generator',
   },
   {
-    icon: <FileText />,
+    icon: <FileText className="h-6 w-6" />,
     title: 'Resume Analyzer & ATS Optimizer',
     description: 'Optimize your resume against job descriptions to beat the bots.',
+    href: '/resume-analyzer',
   },
   {
-    icon: <Bot />,
+    icon: <Bot className="h-6 w-6" />,
     title: 'AI Mock Interviewer',
     description: 'Practice your interview skills with a real-time AI and get instant feedback.',
+    href: '/mock-interviewer',
   },
 ];
 
@@ -37,7 +40,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex h-20 items-center justify-between">
             <AppLogo />
@@ -65,28 +68,28 @@ export default function Home() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative flex h-screen min-h-[700px] items-center justify-center pt-20">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80 z-10" />
+          <div className="absolute inset-0 z-10" />
           <div className="absolute inset-0 overflow-hidden">
             <Image
-              src="https://picsum.photos/seed/college-students/1920/1080"
-              alt="College students collaborating"
+              src="https://picsum.photos/seed/tech-abstract/1920/1080"
+              alt="Abstract technology background"
               fill
               className="object-cover"
-              data-ai-hint="college students working"
+              data-ai-hint="abstract technology"
               priority
             />
-             <div className="absolute inset-0 bg-black/40" />
+             <div className="absolute inset-0 bg-black/60" />
           </div>
           <div className="relative z-20 text-center text-primary-foreground px-4">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight font-headline">
-              Your AI-Powered Career Co-Pilot
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight font-headline">
+              Land Your Dream Job
             </h1>
-            <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-primary-foreground/80">
-              From crafting the perfect LinkedIn post to acing your interviews, CareerFlow.ai gives you the tools to land your dream job.
+            <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-primary-foreground/80">
+              CareerFlow.ai is your AI co-pilot for navigating the job market. From resumes to interviews, we give you the tools to succeed.
             </p>
-            <div className="mt-8">
-              <Button size="lg" asChild>
-                <Link href="/signup">Start Your Career Journey <ArrowRight className="ml-2" /></Link>
+            <div className="mt-10">
+              <Button size="lg" asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+                <Link href="/signup">Start for Free <ArrowRight className="ml-2" /></Link>
               </Button>
             </div>
           </div>
@@ -96,32 +99,29 @@ export default function Home() {
         <section className="py-20 sm:py-32 bg-background">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center">
-                    <h2 className="text-3xl sm:text-4xl font-bold tracking-tight font-headline">The Ultimate Toolkit for Career Success</h2>
-                    <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-                        Everything you need to stand out in today's competitive job market.
+                    <h2 className="text-3xl sm:text-5xl font-bold tracking-tight font-headline">The Ultimate Toolkit for Career Success</h2>
+                    <p className="mt-6 max-w-3xl mx-auto text-lg text-muted-foreground">
+                        Stop guessing what recruiters want to see. Get data-driven insights and AI-powered tools to build a winning application.
                     </p>
                 </div>
-                <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
                     {features.map((feature) => (
-                        <Card key={feature.title} className="bg-card/50 backdrop-blur-lg border border-border/20 text-center">
-                            <CardHeader>
-                                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                                    {feature.icon}
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <CardTitle>{feature.title}</CardTitle>
-                                <CardDescription className="mt-2">{feature.description}</CardDescription>
-                            </CardContent>
-                        </Card>
+                        <div key={feature.title} className="bg-secondary/50 p-8 rounded-2xl border border-border">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                                {feature.icon}
+                            </div>
+                            <h3 className="mt-6 text-xl font-bold">{feature.title}</h3>
+                            <p className="mt-2 text-muted-foreground">{feature.description}</p>
+                        </div>
                     ))}
                 </div>
             </div>
         </section>
       </main>
 
-      <footer className="py-8 bg-muted/50">
+      <footer className="py-8 bg-muted/20 border-t border-border">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground">
+            <AppLogo className="justify-center mb-4"/>
             <p>&copy; {new Date().getFullYear()} CareerFlow.ai. All rights reserved.</p>
         </div>
       </footer>
