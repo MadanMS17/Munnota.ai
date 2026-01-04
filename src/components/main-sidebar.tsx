@@ -96,10 +96,10 @@ export function MainSidebar() {
             </SheetTrigger>
             <SheetContent side="left" className="w-72 flex flex-col p-0">
                 <SheetHeader className='p-4 border-b'>
+                  <SheetTitle className="sr-only">Features Menu</SheetTitle>
                   <Link href="/">
                       <AppLogo />
                   </Link>
-                  <SheetTitle className="sr-only">Features Menu</SheetTitle>
                 </SheetHeader>
                 {mobileNavLinks}
             </SheetContent>
