@@ -76,7 +76,6 @@ export default function Home() {
               noise={0}
               transparent={false}
             />
-             <div className="absolute inset-0 bg-black/30"></div>
           </div>
           <div className="relative z-10 text-center text-white px-4">
             <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight">
