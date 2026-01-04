@@ -1,10 +1,10 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { analyzeResume, AnalyzeResumeOutput } from '@/ai/flows/analyze-resume-against-job-description';
-import { useUser, useFirestore } from '@/firebase';
+import { useUser, useFirestore, useCollection } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
@@ -12,16 +12,32 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/page-header';
-import { Bot, FileUp, Loader2, BarChart, CheckCircle, XCircle } from 'lucide-react';
+import { Bot, FileUp, Loader2, BarChart, CheckCircle, XCircle, Trash2, FileText } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, doc, deleteDoc, query, orderBy, limit, writeBatch } from 'firebase/firestore';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
+const MAX_RESUMES = 2;
+const MAX_FILE_SIZE_MB = 3;
 
 const formSchema = z.object({
-  resume: z.any().refine(file => file?.length == 1, 'Resume is required.'),
+  resume: z.union([
+    z.any().refine(files => files?.length === 1, { message: 'Resume file is required.' })
+          .refine(files => files?.[0]?.size <= MAX_FILE_SIZE_MB * 1024 * 1024, { message: `Max file size is ${MAX_FILE_SIZE_MB}MB.` }),
+    z.string().min(1, { message: 'Please select a resume.' })
+  ]),
   jobDescription: z.string().min(50, 'Job description must be at least 50 characters.'),
 });
+
+type ResumeDoc = {
+    id: string;
+    resumeName: string;
+    resumeUrl: string;
+    createdAt: any;
+};
 
 const ScoreCard = ({ title, score, description }: { title: string; score: number, description: string }) => (
     <Card>
@@ -39,27 +55,19 @@ const ScoreCard = ({ title, score, description }: { title: string; score: number
 )
 
 const Suggestions = ({ suggestions }: { suggestions: string }) => {
-    // Split the text at the first occurrence of "1. " or "1. **" to separate the intro.
     const introMatch = suggestions.match(/^(.*?)(?=1\.\s)/s);
     const intro = introMatch ? introMatch[1].trim() : '';
-    
-    // The rest of the string contains the numbered items.
     const itemsText = introMatch ? suggestions.substring(introMatch[0].length) : suggestions;
   
-    // Split the rest of the text into individual suggestion items.
-    // This regex looks for a number followed by a period and a space.
     const suggestionItems = itemsText.split(/\s*(?=\d+\.\s)/).filter(s => s.trim().length > 0);
   
     return (
       <div className="space-y-4">
         {intro && <p className="text-muted-foreground mb-6">{intro}</p>}
         {suggestionItems.map((item, index) => {
-          // This regex captures the number, the title (which might be bold), and the description.
-          // It looks for a number, period, space, then captures the text until a colon, and then the rest.
           const match = item.match(/(\d+)\.\s(?:_|\*)*(.+?)(?:_|\*)*:\s*(.*)/s);
           
           if (!match) {
-            // Fallback for items that don't match the "Title: Description" format
             return <p key={index} className="text-muted-foreground">{item.replace(/\*\*/g, '')}</p>;
           }
           
@@ -86,12 +94,29 @@ export default function ResumeAnalyzerPage() {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+
+  const resumesRef = user ? collection(firestore, 'users', user.uid, 'resumes') : null;
+  const resumesQuery = resumesRef ? query(resumesRef, orderBy('createdAt', 'desc')) : null;
+  const { data: resumes, isLoading: resumesLoading } = useCollection<ResumeDoc>(resumesQuery);
+
   const [analysisResult, setAnalysisResult] = useState<AnalyzeResumeOutput | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [resumeToDelete, setResumeToDelete] = useState<string | null>(null);
+  const [fileToUpload, setFileToUpload] = useState<FileList | null>(null);
+  const [selectedResume, setSelectedResume] = useState<string | undefined>(undefined);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
+
+  useEffect(() => {
+    if (resumes && resumes.length > 0 && !selectedResume) {
+      const defaultResumeId = resumes[0].id;
+      setSelectedResume(defaultResumeId);
+      form.setValue('resume', defaultResumeId);
+    }
+  }, [resumes, selectedResume, form]);
 
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -101,6 +126,49 @@ export default function ResumeAnalyzerPage() {
       reader.onerror = error => reject(error);
     });
   };
+
+  async function handleResumeUpload(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    
+    if (resumes && resumes.length >= MAX_RESUMES) {
+      setFileToUpload(files);
+      setDeleteDialogOpen(true);
+    } else {
+      await uploadResume(files[0]);
+    }
+  }
+
+  async function uploadResume(file: File) {
+    if (!user || !firestore) return;
+
+    const resumeDataUri = await fileToBase64(file);
+    const newResumeRef = collection(firestore, 'users', user.uid, 'resumes');
+    const newDoc = await addDoc(newResumeRef, {
+        resumeName: file.name,
+        resumeUrl: resumeDataUri,
+        createdAt: serverTimestamp(),
+        userId: user.uid,
+    });
+    
+    toast({ title: 'Success', description: 'Resume uploaded successfully.' });
+    setSelectedResume(newDoc.id); // Select the new resume
+    form.setValue('resume', newDoc.id);
+  }
+
+  async function handleDeleteConfirmation() {
+    if (!resumeToDelete || !fileToUpload || !user || !firestore) return;
+    
+    const docRef = doc(firestore, 'users', user.uid, 'resumes', resumeToDelete);
+    await deleteDoc(docRef);
+
+    setDeleteDialogOpen(false);
+    toast({ title: 'Success', description: 'Resume deleted.' });
+    
+    await uploadResume(fileToUpload[0]);
+    setFileToUpload(null);
+    setResumeToDelete(null);
+  }
+
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!user || !firestore) {
@@ -112,8 +180,20 @@ export default function ResumeAnalyzerPage() {
     setAnalysisResult(null);
 
     try {
-      const resumeFile = values.resume[0];
-      const resumeDataUri = await fileToBase64(resumeFile);
+        let resumeDataUri: string;
+        let resumeName: string = "Uploaded Resume";
+
+        if (typeof values.resume === 'string') {
+            const selected = resumes?.find(r => r.id === values.resume);
+            if (!selected) throw new Error("Selected resume not found.");
+            resumeDataUri = selected.resumeUrl;
+            resumeName = selected.resumeName;
+        } else {
+            const resumeFile = values.resume[0];
+            resumeDataUri = await fileToBase64(resumeFile);
+            resumeName = resumeFile.name;
+        }
+
 
       const result = await analyzeResume({
         resumeDataUri,
@@ -127,6 +207,7 @@ export default function ResumeAnalyzerPage() {
         const analysesCollectionRef = collection(firestore, 'users', user.uid, 'resume_analyses');
         await addDoc(analysesCollectionRef, {
             ...result,
+            resumeName,
             jobDescription: values.jobDescription,
             analysisDate: serverTimestamp(),
             userId: user.uid,
@@ -166,25 +247,61 @@ export default function ResumeAnalyzerPage() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
                 <FormField
-                  control={form.control}
-                  name="resume"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Upload Your Resume</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                            <FileUp className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                            <Input type="file" className="pl-10" accept=".pdf,.doc,.docx" onChange={(e) => field.onChange(e.target.files)} />
-                        </div>
-                      </FormControl>
-                      <FormDescription>PDF, DOC, or DOCX files are accepted.</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                    control={form.control}
+                    name="resume"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Your Resumes</FormLabel>
+                            <FormDescription>Select a resume to analyze or upload a new one. You can store up to {MAX_RESUMES}.</FormDescription>
+                            
+                            {resumesLoading && <Skeleton className="h-20 w-full" />}
+                            
+                            {!resumesLoading && resumes && resumes.length > 0 && (
+                                <FormControl>
+                                    <RadioGroup
+                                        onValueChange={(value) => {
+                                            field.onChange(value);
+                                            setSelectedResume(value);
+                                        }}
+                                        value={field.value}
+                                        className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"
+                                    >
+                                        {resumes.map((resume) => (
+                                            <FormItem key={resume.id} className="flex-1">
+                                                <FormControl>
+                                                    <RadioGroupItem value={resume.id} id={resume.id} className="sr-only peer" />
+                                                </FormControl>
+                                                <Label 
+                                                    htmlFor={resume.id}
+                                                    className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                                                >
+                                                    <FileText className="mb-2 h-6 w-6" />
+                                                    <span className="truncate">{resume.resumeName}</span>
+                                                </Label>
+                                            </FormItem>
+                                        ))}
+                                    </RadioGroup>
+                                </FormControl>
+                            )}
+                           
+                            <div className="flex items-center gap-4 pt-2">
+                                <div className="relative flex-1">
+                                    <FileUp className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                    <Input 
+                                        type="file" 
+                                        className="pl-10" 
+                                        accept=".pdf,.doc,.docx,.txt" 
+                                        onChange={(e) => handleResumeUpload(e.target.files)} 
+                                    />
+                                </div>
+                            </div>
+                             <FormMessage />
+                        </FormItem>
+                    )}
                 />
-                </div>
+                
                 <FormField
                   control={form.control}
                   name="jobDescription"
@@ -257,6 +374,40 @@ export default function ResumeAnalyzerPage() {
           </Card>
         )}
       </div>
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Resume Limit Reached</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        You can only store up to {MAX_RESUMES} resumes. Please select one to delete to continue.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <RadioGroup onValueChange={setResumeToDelete} className="gap-4 py-4">
+                    {resumes?.map(resume => (
+                         <FormItem key={resume.id} className="flex-1">
+                            <FormControl>
+                                <RadioGroupItem value={resume.id} id={`delete-${resume.id}`} className="sr-only peer" />
+                            </FormControl>
+                            <Label 
+                                htmlFor={`delete-${resume.id}`}
+                                className="flex items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-destructive [&:has([data-state=checked])]:border-destructive"
+                            >
+                                <span className="truncate">{resume.resumeName}</span>
+                                <Trash2 className="h-5 w-5 text-destructive opacity-50 peer-data-[state=checked]:opacity-100" />
+                            </Label>
+                        </FormItem>
+                    ))}
+                </RadioGroup>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setFileToUpload(null)}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteConfirmation} disabled={!resumeToDelete} className={buttonVariants({ variant: "destructive" })}>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete and Upload
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+
     </>
   );
 }

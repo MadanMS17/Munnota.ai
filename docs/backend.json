@@ -81,6 +81,10 @@
           "type": "string",
           "description": "Reference to UserProfile. (Relationship: UserProfile 1:N ResumeAnalysis)"
         },
+        "resumeName": {
+          "type": "string",
+          "description": "The name of the resume file used for analysis."
+        },
         "resumeText": {
           "type": "string",
           "description": "The Resume Text after converting file to text"
@@ -110,6 +114,7 @@
       "required": [
         "id",
         "userId",
+        "resumeName",
         "jobDescription",
         "studentProjectPortfolioScore",
         "technicalKnowledgeScore",
@@ -240,6 +245,26 @@
             {
               "name": "linkedInPostId",
               "description": "The unique identifier for the LinkedIn post."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/resumes/{resumeId}",
+        "definition": {
+          "entityName": "Resume",
+          "schema": {
+            "$ref": "#/backend/entities/Resume"
+          },
+          "description": "Stores user-uploaded resumes. Path-based ownership. Authorization is based on matching `request.auth.uid` to `{userId}`.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "resumeId",
+              "description": "The unique identifier for the resume."
             }
           ]
         }

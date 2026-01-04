@@ -143,6 +143,16 @@ service cloud.firestore {
       allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
     }
+    
+    /**
+     * @description Rules for user-uploaded resumes.
+     * @path /users/{userId}/resumes/{resumeId}
+     * @principle Enforces ownership and data validation for resumes.
+     */
+    match /users/{userId}/resumes/{resumeId} {
+      allow get, list, create, update, delete: if isOwner(userId);
+    }
+
 
     /**
      * @description Rules for user-generated resume analyses.
