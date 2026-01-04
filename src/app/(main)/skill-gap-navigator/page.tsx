@@ -182,7 +182,7 @@ export default function SkillGapNavigatorPage() {
                                 <AccordionContent>
                                     <div className="prose prose-invert max-w-none text-muted-foreground space-y-2">
                                         {week.content.split('\n').map((line, i) => {
-                                            const trimmedLine = line.trim();
+                                            const trimmedLine = line.trim().replace(/\*\*/g, '');
                                             if (trimmedLine.startsWith('- ')) {
                                                 return (
                                                     <p key={i} className="ml-4 flex items-start gap-2">
