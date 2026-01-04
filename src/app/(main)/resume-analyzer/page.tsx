@@ -38,6 +38,36 @@ const ScoreCard = ({ title, score, description }: { title: string; score: number
     </Card>
 )
 
+const Suggestions = ({ suggestions }: { suggestions: string }) => {
+  const suggestionItems = suggestions
+    .split(/\s*(?=\d+\.\s\*\*)/)
+    .filter(s => s.trim().length > 0);
+
+  return (
+    <div className="space-y-4">
+      {suggestionItems.map((item, index) => {
+        const match = item.match(/(\d+)\.\s\*\*(.*?):\*\*\s*(.*)/s);
+        if (!match) {
+          return <p key={index}>{item}</p>;
+        }
+        const [, number, title, description] = match;
+        return (
+          <div key={number} className="flex gap-4 items-start">
+            <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold mt-1">
+                {number}
+            </div>
+            <div>
+              <h4 className="font-semibold text-foreground">{title}</h4>
+              <p className="text-muted-foreground">{description}</p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+
 export default function ResumeAnalyzerPage() {
   const { user } = useUser();
   const firestore = useFirestore();
@@ -204,8 +234,8 @@ export default function ResumeAnalyzerPage() {
 
                 <div>
                     <h3 className="font-semibold text-lg mb-2 flex items-center"><Bot className="h-5 w-5 mr-2 text-primary" /> Optimization Suggestions</h3>
-                    <div className="prose prose-invert max-w-none text-muted-foreground bg-muted/20 p-4 rounded-md">
-                        <p>{analysisResult.suggestions}</p>
+                    <div className="bg-muted/20 p-4 rounded-md">
+                        <Suggestions suggestions={analysisResult.suggestions} />
                     </div>
                 </div>
 
