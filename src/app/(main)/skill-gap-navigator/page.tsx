@@ -1,24 +1,53 @@
 'use client';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { generateLearningRoadmap, SkillGapNavigatorOutput } from '@/ai/flows/skill-gap-navigator';
-import { useUser } from '@/firebase';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/page-header';
-import { Bot, Loader2, Compass } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { useState }from 'react';
+import { useForm }from 'react-hook-form';
+import { zodResolver }from '@hookform/resolvers/zod';
+import { z }from 'zod';
+import { generateLearningRoadmap, SkillGapNavigatorOutput }from '@/ai/flows/skill-gap-navigator';
+import { useUser }from '@/firebase';
+import { Button }from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle }from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage }from '@/components/ui/form';
+import { Textarea }from '@/components/ui/textarea';
+import { Input }from '@/components/ui/input';
+import { useToast }from '@/hooks/use-toast';
+import { PageHeader }from '@/components/page-header';
+import { Bot, Loader2, Compass, ExternalLink }from 'lucide-react';
+import { ScrollArea }from '@/components/ui/scroll-area';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const formSchema = z.object({
   targetRole: z.string().min(3, 'Target role must be at least 3 characters.'),
   jobDescription: z.string().min(50, 'Job description must be at least 50 characters.'),
 });
+
+// A simple component to parse and render a line of text, making URLs clickable
+const RenderLine = ({ line }: { line: string }) => {
+    // Regex to find URLs in a string
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = line.split(urlRegex);
+
+    return (
+        <>
+            {parts.map((part, index) => {
+                if (part.match(urlRegex)) {
+                    return (
+                        <a
+                            key={index}
+                            href={part}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary underline hover:text-primary/80 inline-flex items-center gap-1"
+                        >
+                            {part} <ExternalLink className="h-3 w-3" />
+                        </a>
+                    );
+                }
+                return part;
+            })}
+        </>
+    );
+};
 
 export default function SkillGapNavigatorPage() {
   const { user } = useUser();
@@ -54,6 +83,29 @@ export default function SkillGapNavigatorPage() {
       setIsGenerating(false);
     }
   }
+
+    // Helper to parse the roadmap text into structured data
+    const parseRoadmap = (text: string) => {
+        if (!text) return [];
+        return text
+            .split(/\*\*(Week \d+:.*?)\*\*/)
+            .filter(Boolean)
+            .map(part => part.trim())
+            .reduce((acc, part, index) => {
+                if (index % 2 === 0) {
+                    // This is a week title
+                    acc.push({ title: part, content: '' });
+                } else {
+                    // This is the content for the previous week title
+                    if (acc.length > 0) {
+                        acc[acc.length - 1].content = part;
+                    }
+                }
+                return acc;
+            }, [] as { title: string, content: string }[]);
+    };
+
+    const parsedRoadmap = roadmap ? parseRoadmap(roadmap.learningRoadmap) : [];
 
   return (
     <>
@@ -119,11 +171,38 @@ export default function SkillGapNavigatorPage() {
                   <p className="mt-4 text-muted-foreground">Generating your personalized roadmap...</p>
                 </div>
               )}
-              {roadmap ? (
-                 <ScrollArea className="h-[60vh] w-full">
-                    <pre className="whitespace-pre-wrap text-sm text-foreground p-4 bg-muted/20 rounded-md font-sans">
-                        {roadmap.learningRoadmap}
-                    </pre>
+              {roadmap && parsedRoadmap.length > 0 ? (
+                 <ScrollArea className="h-[60vh] w-full pr-4">
+                    <Accordion type="single" collapsible className="w-full" defaultValue="item-0">
+                        {parsedRoadmap.map((week, index) => (
+                            <AccordionItem value={`item-${index}`} key={index}>
+                                <AccordionTrigger className="text-lg font-semibold hover:no-underline">
+                                    {week.title}
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                    <div className="prose prose-invert max-w-none text-muted-foreground space-y-2">
+                                        {week.content.split('\n').map((line, i) => {
+                                            const trimmedLine = line.trim();
+                                            if (trimmedLine.startsWith('- ')) {
+                                                return (
+                                                    <p key={i} className="ml-4 flex items-start gap-2">
+                                                        <span className="mt-1">
+                                                            &bull;
+                                                        </span>
+                                                        <span><RenderLine line={trimmedLine.substring(2)} /></span>
+                                                    </p>
+                                                );
+                                            }
+                                            if (trimmedLine) {
+                                                return <h4 key={i} className="font-semibold text-foreground mt-4 mb-1"><RenderLine line={trimmedLine} /></h4>
+                                            }
+                                            return null;
+                                        })}
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                    </Accordion>
                  </ScrollArea>
               ) : !isGenerating && (
                 <div className="flex flex-col items-center justify-center h-full pt-16 text-center">
