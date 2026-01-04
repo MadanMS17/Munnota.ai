@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { analyzeResume, AnalyzeResumeOutput } from '@/ai/flows/analyze-resume-against-job-description';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
@@ -16,6 +16,7 @@ import { Bot, FileUp, Loader2, BarChart, CheckCircle, XCircle } from 'lucide-rea
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 
 const formSchema = z.object({
   resume: z.any().refine(file => file?.length == 1, 'Resume is required.'),
@@ -39,6 +40,7 @@ const ScoreCard = ({ title, score, description }: { title: string; score: number
 
 export default function ResumeAnalyzerPage() {
   const { user } = useUser();
+  const firestore = useFirestore();
   const { toast } = useToast();
   const [analysisResult, setAnalysisResult] = useState<AnalyzeResumeOutput | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -57,7 +59,7 @@ export default function ResumeAnalyzerPage() {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!user) {
+    if (!user || !firestore) {
       toast({ variant: 'destructive', title: 'Authentication Error', description: 'You must be logged in.' });
       return;
     }
@@ -75,6 +77,29 @@ export default function ResumeAnalyzerPage() {
       });
       setAnalysisResult(result);
       toast({ title: 'Analysis Complete', description: 'Your resume has been successfully analyzed.' });
+
+      // Automatically save the result
+      try {
+        const analysesCollectionRef = collection(firestore, 'users', user.uid, 'resume_analyses');
+        await addDoc(analysesCollectionRef, {
+            ...result,
+            jobDescription: values.jobDescription,
+            analysisDate: serverTimestamp(),
+            userId: user.uid,
+        });
+        toast({
+            title: "Analysis Saved",
+            description: "Your resume analysis has been saved to your history."
+        });
+      } catch (saveError) {
+        console.error("Failed to save analysis", saveError);
+        toast({
+            variant: "destructive",
+            title: "Save Failed",
+            description: "Could not save the analysis to your history."
+        });
+      }
+
     } catch (error) {
       console.error(error);
       toast({ variant: 'destructive', title: 'Analysis Failed', description: 'Something went wrong. Please try again.' });
