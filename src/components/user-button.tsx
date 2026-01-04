@@ -30,15 +30,15 @@ export function UserButton({ className }: { className?: string }) {
   };
 
   if (loading) {
-    return <Skeleton className={cn("h-10 w-24", className)} />;
+    return <Skeleton className={cn("h-10 w-10 rounded-full", className)} />;
   }
 
   if (!user) {
     return (
-      <Button asChild className={cn(className)}>
+      <Button asChild className={cn(className)} variant="ghost" size="icon">
         <Link href="/login">
-          <LogIn className="mr-2 h-4 w-4" />
-          Sign In
+          <LogIn className="h-5 w-5" />
+          <span className="sr-only">Sign In</span>
         </Link>
       </Button>
     );
@@ -48,19 +48,15 @@ export function UserButton({ className }: { className?: string }) {
     <div className={cn(className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="w-full justify-start gap-2 p-2 h-auto">
-            <Avatar className="h-8 w-8">
+          <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+            <Avatar className="h-10 w-10">
               <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'} />
               <AvatarFallback>
                 {user.displayName
                   ? user.displayName.charAt(0)
-                  : <UserIcon className="h-4 w-4" />}
+                  : <UserIcon className="h-5 w-5" />}
               </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col items-start text-left">
-              <span className="text-sm font-medium text-foreground truncate">{user.displayName || user.email}</span>
-              <span className="text-xs text-muted-foreground truncate">{user.email}</span>
-            </div>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
