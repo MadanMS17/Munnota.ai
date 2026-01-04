@@ -8,7 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 
 const AnalyzeResumeInputSchema = z.object({
   resumeDataUri: z
@@ -61,25 +61,25 @@ You will perform a systematic analysis and generate scores for three key areas, 
 1.  **Keyword and Tech Stack Alignment (Weight: 40%)**:
     *   Identify all critical keywords, technologies, and frameworks mentioned in the job description.
     *   Scan the resume for direct matches and contextual equivalents.
-    *   Calculate a `keywordScore` from 0-100 based on the percentage of matches and their contextual relevance. For example, simply listing a technology is less valuable than describing its use in a project.
-    *   Populate `keywordMatches` with the keywords found in the resume.
-    *   Populate `keywordGaps` with critical keywords from the job description that are missing from the resume.
+    *   Calculate a \`keywordScore\` from 0-100 based on the percentage of matches and their contextual relevance. For example, simply listing a technology is less valuable than describing its use in a project.
+    *   Populate \`keywordMatches\` with the keywords found in the resume.
+    *   Populate \`keywordGaps\` with critical keywords from the job description that are missing from the resume.
 
 2.  **Technical Knowledge & Experience Depth (Weight: 30%)**:
     *   Evaluate the depth of experience described for each matching keyword. Does the resume demonstrate hands-on application, or just mention the skill?
     *   Assess if the years of experience (if mentioned) align with the job's requirements (e.g., "Senior," "Lead," "3+ years").
-    *   Calculate a `technicalKnowledgeScore` from 0-100. A high score requires not just listing skills but showing impact and depth.
+    *   Calculate a \`technicalKnowledgeScore\` from 0-100. A high score requires not just listing skills but showing impact and depth.
 
 3.  **Project Portfolio & Impact Relevance (Weight: 30%)**:
     *   Analyze the projects listed in the resume. How well do the project descriptions and the technologies used align with the job description?
     *   Look for quantified achievements (e.g., "improved performance by 20%," "handled 10,000 concurrent users").
-    *   Calculate a `studentProjectPortfolioScore` from 0-100. High scores are for projects that are directly relevant and demonstrate measurable impact.
+    *   Calculate a \`studentProjectPortfolioScore\` from 0-100. High scores are for projects that are directly relevant and demonstrate measurable impact.
 
 4.  **Overall ATS Score**:
-    *   Calculate the final `overallScore` as a weighted average of the three scores above.
+    *   Calculate the final \`overallScore\` as a weighted average of the three scores above.
 
 5.  **Optimization Suggestions**:
-    *   Provide a set of clear, actionable `suggestions` to improve the resume. These must be specific and directly linked to the identified gaps.
+    *   Provide a set of clear, actionable \`suggestions\` to improve the resume. These must be specific and directly linked to the identified gaps.
     *   Structure the suggestions with a brief introductory sentence, followed by a numbered list. Each numbered item should have a clear title (e.g., "Integrate Missing Keywords," "Quantify Your Achievements").
     *   Example Suggestion: "2. Quantify Your Achievements: In your description of Project X, you mention improving performance. Try to add a specific metric, such as 'Reduced API response times by 35% through query optimization.'"
 
