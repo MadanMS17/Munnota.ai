@@ -59,6 +59,13 @@ export default function MockInterviewerPage() {
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<any>(null);
 
+  const setupForm = useForm<z.infer<typeof setupSchema>>({
+    resolver: zodResolver(setupSchema),
+  });
+
+  const responseForm = useForm<z.infer<typeof responseSchema>>({
+    resolver: zodResolver(responseSchema),
+  });
 
   // Text-to-Speech
   const speak = (text: string) => {
@@ -136,15 +143,6 @@ export default function MockInterviewerPage() {
     }
     setIsListening(!isListening);
   };
-
-
-  const setupForm = useForm<z.infer<typeof setupSchema>>({
-    resolver: zodResolver(setupSchema),
-  });
-
-  const responseForm = useForm<z.infer<typeof responseSchema>>({
-    resolver: zodResolver(responseSchema),
-  });
 
   useEffect(() => {
     if (scrollAreaRef.current) {
