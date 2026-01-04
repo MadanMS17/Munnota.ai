@@ -11,7 +11,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Clipboard, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 interface Post {
@@ -71,16 +70,22 @@ const RenderLine = ({ line }: { line: string }) => {
 
 const parseRoadmap = (text: string) => {
     if (!text) return [];
-    // Split by week headers, but keep the headers
-    const weeks = text.split(/(\*\*Week\s\d+:[^\*]+\*\*)/g).filter(p => p.trim());
+    
+    // The regex now looks for lines that start with **Week...** and are enclosed in asterisks
+    const weekHeaders = text.match(/\*\*.+?\*\*/g) || [];
+    if (weekHeaders.length === 0) return [];
+    
+    // Create a regex pattern from the found headers to split the text
+    const splitPattern = new RegExp(`(${weekHeaders.map(h => h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'g');
+    const parts = text.split(splitPattern).filter(p => p.trim());
+
     const result: { title: string, content: string }[] = [];
 
-    // The regex split results in [delimiter, content, delimiter, content, ...]
-    for (let i = 0; i < weeks.length; i += 2) {
-      if (weeks[i] && weeks[i+1]) {
+    for (let i = 0; i < parts.length; i += 2) {
+      if (parts[i] && parts[i+1]) {
         result.push({
-          title: weeks[i].replace(/\*\*/g, ''),
-          content: weeks[i+1].trim(),
+          title: parts[i].replace(/\*\*/g, '').trim(),
+          content: parts[i+1].trim(),
         });
       }
     }
