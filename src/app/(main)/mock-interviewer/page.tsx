@@ -579,28 +579,12 @@ export default function MockInterviewerPage() {
   }
 
   return (
-    <div className="relative min-h-[calc(100vh-14rem)] flex flex-col items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-            <GridScan
-                sensitivity={1}
-                lineThickness={1}
-                linesColor="#200040"
-                gridScale={0.15}
-                scanColor="#8e2de2"
-                scanOpacity={0.4}
-                enablePost
-                bloomIntensity={0.5}
-                chromaticAberration={0.005}
-                noiseIntensity={0.02}
-            />
-        </div>
-        <div className="relative z-10 w-full">
-            <PageHeader
-                title="AI Mock Interviewer"
-                description="Practice your interview skills with a real-time AI to build confidence."
-            />
-            {renderContent()}
-        </div>
-    </div>
+    <>
+      <PageHeader
+        title="AI Mock Interviewer"
+        description="Practice your interview skills with a real-time AI to build confidence."
+      />
+      {renderContent()}
+    </>
   );
 }
