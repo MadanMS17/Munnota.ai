@@ -123,9 +123,9 @@ export default function Home() {
         </section>
 
         {/* FOMO Section */}
-        <section className="relative py-20 sm:py-32 overflow-hidden">
+        <section className="relative py-20 sm:py-32 overflow-hidden bg-transparent">
             <Particles
-                className="absolute inset-0"
+                className="absolute inset-0 -z-10"
                 particleColors={['#2962FF', '#39FF14']}
                 particleCount={200}
                 particleSpread={15}
@@ -135,7 +135,7 @@ export default function Home() {
                 alphaParticles={true}
                 disableRotation={false}
               />
-            <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center rounded-2xl py-12 bg-background/80 backdrop-blur-sm">
                 <Zap className="mx-auto h-16 w-16 text-primary animate-pulse" />
                 <h2 className="mt-6 text-4xl sm:text-5xl font-bold tracking-tight text-white">
                     The Best Candidates Are Already Using AI. Are You?
