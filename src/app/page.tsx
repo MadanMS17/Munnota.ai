@@ -63,7 +63,7 @@ export default function Home() {
               Land Your Dream Job, Faster.
             </h1>
             <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-white/80">
-              CareerFlow.ai is your AI co-pilot for navigating the job market. From skills to interviews, we enable you to succeed at greater speed.
+              Munnota.ai is your AI co-pilot for navigating the job market. From skills to interviews, we enable you to succeed at greater speed.
             </p>
             <div className="mt-10">
                 {!isUserLoading && !user && (
