@@ -126,15 +126,15 @@ export default function Home() {
         <section className="relative py-20 sm:py-32 overflow-hidden bg-transparent">
             <Particles
                 className="absolute inset-0 -z-10"
-                particleColors={['#2962FF', '#39FF14']}
+                particleColors={['#ffffff', '#ffffff']}
                 particleCount={200}
-                particleSpread={15}
-                speed={0.1}
-                particleBaseSize={2}
+                particleSpread={10}
+                speed={1}
+                particleBaseSize={100}
                 moveParticlesOnHover={true}
-                alphaParticles={true}
+                alphaParticles={false}
                 disableRotation={false}
-              />
+            />
             <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center rounded-2xl py-12 bg-background/80 backdrop-blur-sm">
                 <Zap className="mx-auto h-16 w-16 text-primary animate-pulse" />
                 <h2 className="mt-6 text-4xl sm:text-5xl font-bold tracking-tight text-white">
