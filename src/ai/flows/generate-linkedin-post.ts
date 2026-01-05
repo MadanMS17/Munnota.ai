@@ -44,7 +44,7 @@ Every post you generate MUST follow this structure to ensure it is effective:
     *   Provide context. What was the problem you were solving?
     *   Detail the solution. What did you build? What technologies did you use?
     *   Highlight the outcome. What was the impact? Use metrics if possible (e.g., "improved performance by 30%", "reduced load times by 500ms").
-    *   Use whitespace and short paragraphs (1-2 sentences each) for easy readability on mobile. Emojis can be used sparingly to add personality, depending on the tone.
+    *   **CRITICAL FORMATTING RULE:** You MUST use ample whitespace and break the body into short paragraphs. Each paragraph should only be 1-2 sentences long. Use a double line break (like hitting 'Enter' twice) to separate each paragraph. This is essential for mobile readability.
 3.  **The Hashtags (3-5):**
     *   Generate a set of relevant, targeted hashtags. Include a mix of broad (e.g., #SoftwareEngineering) and niche (e.g., #NextJS) tags.
 4.  **The Call-to-Action (CTA):**
@@ -74,7 +74,8 @@ Every post you generate MUST follow this structure to ensure it is effective:
 -   **Project Details:** {{{projectDetails}}}
 -   **Tone:** {{{tone}}}
 
-**Final Instruction:** Generate the post now, adhering strictly to all directives, frameworks, and tone guidelines.`,
+**Final Instruction:** Generate the post now, adhering strictly to all directives, frameworks, and tone guidelines.
+`,
 });
 
 const generateLinkedInPostFlow = ai.defineFlow(
