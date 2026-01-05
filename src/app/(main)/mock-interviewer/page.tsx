@@ -486,8 +486,8 @@ export default function MockInterviewerPage() {
         title="Mock Interview in Progress"
         description="Respond to the AI's questions below. You'll receive feedback after each answer."
       />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-2 bg-card/50 backdrop-blur-lg border border-border/20 flex flex-col">
+      <div className="h-[calc(100vh-250px)]">
+        <Card className="h-full bg-card/50 backdrop-blur-lg border border-border/20 flex flex-col">
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className='flex items-center gap-2'><MessageSquare/> Interview Chat</CardTitle>
                 <Button variant="destructive" size="sm" onClick={handleEndInterview} disabled={isLoading}>
@@ -495,8 +495,8 @@ export default function MockInterviewerPage() {
                     End Interview
                 </Button>
             </CardHeader>
-          <CardContent className="flex-1 flex flex-col">
-            <ScrollArea className="flex-1 pr-4 mb-4 h-96" ref={scrollAreaRef}>
+          <CardContent className="flex-1 flex flex-col gap-4">
+            <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
               <div className="space-y-6">
                 {messages.map((message, index) => (
                   <div key={index} className={cn("flex items-start gap-3", message.role === 'user' ? 'justify-end' : '')}>
@@ -521,6 +521,27 @@ export default function MockInterviewerPage() {
                 ))}
               </div>
             </ScrollArea>
+            <div className="p-4 rounded-lg bg-muted/30 border space-y-4">
+                {lastResponse && messages.some(m => m.role === 'user') && lastResponse.score !== null ? (
+                    <>
+                        <div>
+                            <div className="flex justify-between items-center mb-2">
+                                <p className="font-semibold flex items-center gap-2"><Star className="h-4 w-4 text-yellow-400"/> Score</p>
+                                <p className="text-xl font-bold text-primary">{lastResponse.score}/100</p>
+                            </div>
+                            <Progress value={lastResponse.score} />
+                        </div>
+                        <div>
+                            <p className="font-semibold mb-1">Feedback</p>
+                            <p className="text-muted-foreground text-sm">{lastResponse.feedback}</p>
+                        </div>
+                    </>
+                ) : (
+                    <div className="text-center text-muted-foreground py-4">
+                        <p>Your feedback will appear here after you submit your first response.</p>
+                    </div>
+                )}
+            </div>
 
             <Form {...responseForm}>
                 <form onSubmit={responseForm.handleSubmit(handleSendResponse)} className="flex items-start gap-4">
@@ -531,7 +552,7 @@ export default function MockInterviewerPage() {
                             render={({ field }) => (
                                 <FormItem className="flex-1">
                                     <FormControl>
-                                        <Textarea placeholder="Type your answer here..." {...field} rows={3} />
+                                        <Textarea placeholder="Type your answer here..." {...field} rows={1} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -564,34 +585,6 @@ export default function MockInterviewerPage() {
             </Form>
           </CardContent>
         </Card>
-        
-        <Card className="lg:col-span-1 bg-card/50 backdrop-blur-lg border border-border/20">
-            <CardHeader>
-                <CardTitle className='flex items-center gap-2'><Star /> Last Response Feedback</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-            {lastResponse && messages.some(m => m.role === 'user') && lastResponse.score !== null ? (
-                <>
-                    <div>
-                        <div className="flex justify-between items-center mb-2">
-                           <p className="font-semibold">Score</p>
-                           <p className="text-2xl font-bold text-primary">{lastResponse.score}/100</p>
-                        </div>
-                        <Progress value={lastResponse.score} />
-                    </div>
-                    <div>
-                        <p className="font-semibold mb-2">Feedback</p>
-                        <p className="text-muted-foreground text-sm">{lastResponse.feedback}</p>
-                    </div>
-                </>
-            ) : (
-                <div className="text-center text-muted-foreground py-10">
-                    <p>Your feedback will appear here after you submit your first response.</p>
-                </div>
-            )}
-            </CardContent>
-        </Card>
-
       </div>
     </>
   );
