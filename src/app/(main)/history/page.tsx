@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { collection, query, getDocs, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, Timestamp, doc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { useFirestore, useUser } from '@/firebase';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,6 +18,7 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { Avatar } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface Post {
   id: string;
@@ -181,6 +182,7 @@ export default function HistoryPage() {
   const [roadmaps, setRoadmaps] = useState<SkillGapRoadmap[]>([]);
   const [interviews, setInterviews] = useState<MockInterview[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedInterviews, setSelectedInterviews] = useState<string[]>([]);
 
   useEffect(() => {
     async function fetchHistory() {
@@ -264,19 +266,41 @@ export default function HistoryPage() {
     toast({ title: 'Copied!', description: 'Content copied to clipboard.' });
   }
 
-  const handleDeleteInterview = async (interviewId: string) => {
-    if (!user || !firestore) return;
+  const handleInterviewSelection = (interviewId: string, isSelected: boolean | 'indeterminate') => {
+      if (isSelected === true) {
+          setSelectedInterviews(prev => [...prev, interviewId]);
+      } else {
+          setSelectedInterviews(prev => prev.filter(id => id !== interviewId));
+      }
+  }
+
+  const handleSelectAllInterviews = (isSelected: boolean | 'indeterminate') => {
+      if (isSelected === true) {
+          setSelectedInterviews(interviews.map(i => i.id));
+      } else {
+          setSelectedInterviews([]);
+      }
+  }
+
+  const handleDeleteSelected = async () => {
+    if (!user || !firestore || selectedInterviews.length === 0) return;
 
     try {
-        const docRef = doc(firestore, 'users', user.uid, 'mock_interviews', interviewId);
-        await deleteDoc(docRef);
-        setInterviews(prev => prev.filter(interview => interview.id !== interviewId));
-        toast({ title: 'Success', description: 'Interview session deleted.' });
+        const batch = writeBatch(firestore);
+        selectedInterviews.forEach(id => {
+            const docRef = doc(firestore, 'users', user.uid, 'mock_interviews', id);
+            batch.delete(docRef);
+        });
+        await batch.commit();
+        
+        setInterviews(prev => prev.filter(interview => !selectedInterviews.includes(interview.id)));
+        setSelectedInterviews([]);
+        toast({ title: 'Success', description: `${selectedInterviews.length} interview(s) deleted.` });
     } catch (error) {
-        console.error("Error deleting interview:", error);
-        toast({ variant: 'destructive', title: 'Error', description: 'Could not delete interview session.' });
+        console.error("Error deleting interviews:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not delete selected interviews.' });
     }
-  }
+  };
 
   return (
     <>
@@ -450,19 +474,50 @@ export default function HistoryPage() {
         </TabsContent>
         <TabsContent value="interviews">
           <Card className="bg-card/50 backdrop-blur-lg border border-border/20">
-            <CardHeader>
-              <CardTitle>Mock Interview Sessions</CardTitle>
-              <CardDescription>A log of all your past interview practice sessions.</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Mock Interview Sessions</CardTitle>
+                <CardDescription>A log of all your past interview practice sessions.</CardDescription>
+              </div>
+              {interviews.length > 0 && (
+                 <Button 
+                    variant="destructive"
+                    onClick={handleDeleteSelected}
+                    disabled={selectedInterviews.length === 0}
+                 >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete ({selectedInterviews.length})
+                </Button>
+              )}
             </CardHeader>
             <CardContent>
                <div className="space-y-6">
                 {loading && Array.from({ length: 1 }).map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
                 {!loading && interviews.length === 0 && <p className="text-muted-foreground text-center py-8">No interview sessions found.</p>}
+                
+                {!loading && interviews.length > 0 && (
+                    <div className="flex items-center space-x-2 py-4 border-b">
+                        <Checkbox 
+                            id="select-all" 
+                            onCheckedChange={handleSelectAllInterviews}
+                            checked={selectedInterviews.length === interviews.length}
+                            aria-label="Select all interviews"
+                        />
+                        <label htmlFor="select-all" className="text-sm font-medium">Select All</label>
+                    </div>
+                )}
+                
                 {!loading && interviews.map((interview) => (
                     <Accordion type="single" collapsible className="w-full" key={interview.id}>
                         <AccordionItem value={interview.id}>
                             <AccordionTrigger className="text-md font-semibold hover:no-underline text-left p-4 rounded-lg bg-muted/30 border">
                                 <div className="flex justify-between items-center w-full gap-4">
+                                     <Checkbox 
+                                        className="mr-4"
+                                        checked={selectedInterviews.includes(interview.id)}
+                                        onCheckedChange={(checked) => handleInterviewSelection(interview.id, checked)}
+                                        onClick={(e) => e.stopPropagation()} // Prevent accordion from toggling
+                                    />
                                     <div className="flex flex-col sm:flex-row justify-between items-start w-full gap-2 flex-wrap">
                                         <div className="flex-grow min-w-0">
                                             <p className="font-semibold">Final Score: <span className="text-primary">{interview.score}/100</span></p>
@@ -472,18 +527,6 @@ export default function HistoryPage() {
                                             {formatDistanceToNow(interview.interviewDate, { addSuffix: true })}
                                         </p>
                                     </div>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
-                                        className="text-destructive hover:text-destructive/80 hover:bg-destructive/10"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDeleteInterview(interview.id)
-                                        }}
-                                    >
-                                        <Trash2 className="h-5 w-5" />
-                                        <span className="sr-only">Delete Interview</span>
-                                    </Button>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="p-4 border border-t-0 rounded-b-lg">
@@ -536,3 +579,5 @@ export default function HistoryPage() {
     </>
   );
 }
+
+    
