@@ -7,7 +7,7 @@ export function AppLogo({ className }: { className?: string }) {
         <Rocket className="h-6 w-6 text-primary" />
       </div>
       <h1 className="font-headline text-xl font-bold text-foreground">
-        CareerFlow.ai
+        Munnota.ai
       </h1>
     </div>
   );
