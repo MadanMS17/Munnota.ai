@@ -52,7 +52,6 @@ export default function LinkedInPostGeneratorPage() {
   const { toast } = useToast();
   const [generatedPost, setGeneratedPost] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -63,7 +62,7 @@ export default function LinkedInPostGeneratorPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!user) {
+    if (!user || !firestore) {
         toast({
             variant: "destructive",
             title: "Authentication Error",
@@ -80,13 +79,25 @@ export default function LinkedInPostGeneratorPage() {
         projectDetails: values.projectDetails,
         tone: values.tone,
       };
-
-      // We are not using the storeAndRecall flow anymore.
-      // You can add logic here to fetch previous posts from Firestore if needed to provide context.
       
       const result = await generateLinkedInPost(input);
       
       setGeneratedPost(result.post);
+
+      // Automatically save the post to history
+      const postsCollectionRef = collection(firestore, 'posts', user.uid, 'linkedin_posts');
+      await addDoc(postsCollectionRef, {
+          post: result.post,
+          timestamp: serverTimestamp(),
+          tone: values.tone,
+          projectDetails: values.projectDetails,
+      });
+
+      toast({
+          title: "Post Generated & Saved",
+          description: "Your LinkedIn post is ready and has been saved to your history."
+      });
+
     } catch (error) {
       console.error(error);
       toast({
@@ -106,34 +117,6 @@ export default function LinkedInPostGeneratorPage() {
       description: 'The post has been copied to your clipboard.',
     });
   };
-
-  const handleSavePost = async () => {
-      if (!user || !generatedPost || !firestore) return;
-
-      setIsSaving(true);
-      try {
-        const postsCollectionRef = collection(firestore, 'posts', user.uid, 'linkedin_posts');
-        await addDoc(postsCollectionRef, {
-            post: generatedPost,
-            timestamp: serverTimestamp(),
-            tone: form.getValues('tone'),
-            projectDetails: form.getValues('projectDetails'),
-        });
-        toast({
-            title: "Post Saved",
-            description: "Your LinkedIn post has been saved to your history."
-        });
-      } catch (error) {
-        console.error(error);
-        toast({
-            variant: "destructive",
-            title: "Save Failed",
-            description: "Could not save the post. Please try again."
-        });
-      } finally {
-        setIsSaving(false);
-      }
-  }
 
   return (
     <>
@@ -252,10 +235,6 @@ export default function LinkedInPostGeneratorPage() {
             <CardFooter className="gap-2">
               <Button onClick={handleCopyToClipboard}>
                 <Clipboard className="mr-2 h-4 w-4" /> Copy
-              </Button>
-              <Button variant="outline" onClick={handleSavePost} disabled={isSaving}>
-                {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                Save to History
               </Button>
             </CardFooter>
           )}
