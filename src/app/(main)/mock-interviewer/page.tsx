@@ -217,7 +217,7 @@ export default function MockInterviewerPage() {
         }
     }
     saveInterview();
-  }, [lastResponse, user, firestore, messages, jobDescription, isSaving, toast]);
+  }, [lastResponse, user, firestore, messages, jobDescription, toast]);
 
   const dataUriToText = (dataUri: string): string => {
     const base64 = dataUri.split(',')[1];
@@ -495,7 +495,7 @@ export default function MockInterviewerPage() {
                     End Interview
                 </Button>
             </CardHeader>
-          <CardContent className="flex-1 flex flex-col gap-4">
+          <CardContent className="flex-1 flex flex-col gap-4 overflow-hidden">
             <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
               <div className="space-y-6">
                 {messages.map((message, index) => (
@@ -544,7 +544,7 @@ export default function MockInterviewerPage() {
             </div>
 
             <Form {...responseForm}>
-                <form onSubmit={responseForm.handleSubmit(handleSendResponse)} className="flex items-start gap-4">
+                <form onSubmit={responseForm.handleSubmit(handleSendResponse)} className="flex items-start gap-4 pt-4">
                     {interviewMode === 'text' ? (
                         <FormField
                             control={responseForm.control}
