@@ -1,14 +1,10 @@
 
-# 🚀 CareerFlow.ai: Your AI-Powered Career Co-Pilot
-
-<div align="center">
-  <img src="https://storage.googleapis.com/studio-hosting-assets/studio-prod/v1.1.0-20240722-07_RC00/assets/career-flow-banner.png" alt="CareerFlow.ai Banner" width="800"/>
-</div>
+# 🚀 Munnota.ai: Your AI-Powered Career Co-Pilot
 
 <p align="center">
   <strong>Land your dream job, faster.</strong>
   <br />
-  CareerFlow.ai is not just a tool; it's your personal career strategist, powered by cutting-edge Generative AI to give you an unfair advantage in the competitive job market.
+  Munnota.ai is not just a tool; it's your personal career strategist, powered by cutting-edge Generative AI to give you an unfair advantage in the competitive job market.
 </p>
 
 <p align="center">
@@ -21,19 +17,19 @@
 
 ---
 
-## ✨ Why CareerFlow.ai is a Game-Changer
+## ✨ Why Munnota.ai is a Game-Changer
 
-In today's job market, standing still is falling behind. Top candidates are leveraging AI to get instant feedback, generate targeted content, and chart their learning path. CareerFlow.ai democratizes access to these tools, providing an integrated suite of AI-powered features designed to navigate every stage of the job hunt.
+In today's job market, standing still is falling behind. Top candidates are leveraging AI to get instant feedback, generate targeted content, and chart their learning path. Munnota.ai democratizes access to these tools, providing an integrated suite of AI-powered features designed to navigate every stage of the job hunt.
 
 This project was built for the **Tech Sprint Challenge**, with a core focus on leveraging powerful **Google Technologies** to solve a real-world problem for students and aspiring professionals.
 
 🏆 **Our Winning Edge:**
-*   **Powered by Google Gemini:** At its heart, CareerFlow.ai uses Google's powerful Gemini models via the **Genkit** framework. This enables sophisticated, context-aware content generation and analysis that sets our features apart.
+*   **Powered by Google Gemini:** At its heart, Munnota.ai uses Google's powerful Gemini models via the **Genkit** framework. This enables sophisticated, context-aware content generation and analysis that sets our features apart.
 *   **Built on Firebase:** The entire backend infrastructure—from user authentication with **Firebase Auth** to real-time data storage in **Firestore**—runs on Google's scalable and secure Firebase platform, ready for production.
 
 ## 🛠️ The Ultimate Toolkit for Career Success
 
-CareerFlow.ai is more than just a single feature; it's a comprehensive platform.
+Munnota.ai is more than just a single feature; it's a comprehensive platform.
 
 ### ✍️ LinkedIn Post Generator
 **Stop wondering what to post. Start building your brand.**
@@ -78,8 +74,8 @@ Follow these instructions to get your local development environment set up and r
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/careerflow-ai.git
-cd careerflow-ai
+git clone https://github.com/your-username/munnota-ai.git
+cd munnota-ai
 ```
 
 ### 2. Install Dependencies
@@ -123,4 +119,4 @@ npm run genkit:watch
 ```
 This will start the Genkit development server and watch for changes in your AI flow files.
 
-You are now all set to explore and build upon CareerFlow.ai!
+You are now all set to explore and build upon Munnota.ai!
