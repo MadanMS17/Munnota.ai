@@ -365,7 +365,7 @@ export default function HistoryPage() {
                                 <div className="flex flex-col sm:flex-row justify-between items-start w-full gap-2 flex-wrap">
                                     <div className="flex-grow min-w-0">
                                         <p className="font-semibold">Overall Score: <span className="text-primary">{analysis.overallScore}/100</span></p>
-                                        <p className="text-sm text-muted-foreground break-all">For job: {analysis.jobDescription}</p>
+                                        <p className="text-sm text-muted-foreground truncate">For job: {analysis.jobDescription}</p>
                                     </div>
                                     <p className="text-sm text-muted-foreground flex-shrink-0 mt-2 sm:mt-0 sm:ml-4">
                                         {formatDistanceToNow(analysis.analysisDate, { addSuffix: true })}
@@ -374,6 +374,13 @@ export default function HistoryPage() {
                             </AccordionTrigger>
                             <AccordionContent className="p-4 border border-t-0 rounded-b-lg">
                                 <div className="space-y-8">
+                                    <div>
+                                        <h3 className="font-semibold text-lg mb-2">Full Job Description</h3>
+                                        <p className="text-sm text-muted-foreground bg-muted/20 p-4 rounded-md whitespace-pre-wrap">{analysis.jobDescription}</p>
+                                    </div>
+                                    
+                                    <Separator />
+                                    
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <ScoreCard title="Project Portfolio" score={analysis.studentProjectPortfolioScore} description="Relevance of projects to JD tech stack."/>
                                         <ScoreCard title="Technical Knowledge" score={analysis.technicalKnowledgeScore} description="Depth and breadth of technical skills."/>
@@ -583,5 +590,3 @@ export default function HistoryPage() {
     </>
   );
 }
-
-    
