@@ -11,7 +11,7 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'CareerFlow.ai',
+  title: 'Munnota.ai',
   description: 'Your AI-powered career co-pilot.',
 };
 
@@ -40,7 +40,7 @@ export default function RootLayout({
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                     <div>
                         <AppLogo className="justify-center md:justify-start mb-4"/>
-                        <p className="text-sm">&copy; {new Date().getFullYear()} CareerFlow.ai. All rights reserved.</p>
+                        <p className="text-sm">&copy; {new Date().getFullYear()} Munnota.ai. All rights reserved.</p>
                     </div>
                     <div className="flex flex-col items-center md:items-start gap-2">
                         <h3 className="font-semibold text-foreground mb-2">Features</h3>
