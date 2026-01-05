@@ -365,8 +365,8 @@ export default function HistoryPage() {
                                 <div className="flex flex-col sm:flex-row justify-between items-start w-full gap-2 flex-wrap">
                                     <div className="flex-grow min-w-0">
                                         <p className="font-semibold">Overall Score: <span className="text-primary">{analysis.overallScore}/100</span></p>
-                                        <p className="text-sm text-muted-foreground truncate">For job: {analysis.jobDescription}</p>
-                                    </div>
+                                        {/* <p className="text-sm text-muted-foreground break-all">For job: {analysis.jobDescription}</p> */}
+                                      </div>
                                     <p className="text-sm text-muted-foreground flex-shrink-0 mt-2 sm:mt-0 sm:ml-4">
                                         {formatDistanceToNow(analysis.analysisDate, { addSuffix: true })}
                                     </p>
