@@ -43,10 +43,11 @@ export default function RootLayout({
                         <p className="text-sm">&copy; {new Date().getFullYear()} CareerFlow.ai. All rights reserved.</p>
                     </div>
                     <div className="flex flex-col items-center md:items-start gap-2">
-                        <h3 className="font-semibold text-foreground mb-2">Links</h3>
-                        <Link href="#" className="hover:text-primary transition-colors">About</Link>
-                        <Link href="#" className="hover:text-primary transition-colors">Blogs</Link>
-                        <Link href="#" className="hover:text-primary transition-colors">Career</Link>
+                        <h3 className="font-semibold text-foreground mb-2">Features</h3>
+                        <Link href="/linkedin-post-generator" className="hover:text-primary transition-colors">LinkedIn Post Generator</Link>
+                        <Link href="/resume-analyzer" className="hover:text-primary transition-colors">Resume Analyzer</Link>
+                        <Link href="/skill-gap-navigator" className="hover:text-primary transition-colors">Skill Gap Navigator</Link>
+                        <Link href="/mock-interviewer" className="hover:text-primary transition-colors">AI Mock Interviewer</Link>
                     </div>
                     <div className="flex flex-col items-center md:items-start gap-2">
                         <h3 className="font-semibold text-foreground mb-2">Community</h3>

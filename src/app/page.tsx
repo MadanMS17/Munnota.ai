@@ -126,14 +126,16 @@ export default function Home() {
         <section className="relative py-20 sm:py-32 overflow-hidden bg-background">
             <div className="absolute inset-0 z-0">
                 <Particles
-                    particleColors={['#2962FF', '#39FF14']}
+                    particleColors={['#F7EF8A', '#F7EF8A']}
                     particleCount={200}
                     particleSpread={10}
-                    speed={1}
-                    particleBaseSize={100}
+                    speed={1.3}
+                    particleBaseSize={200}
                     moveParticlesOnHover={true}
                     alphaParticles={false}
-                    disableRotation={false}
+                    disableRotation={true}
+                    pixelRatio={1}
+                    cameraDistance={20}
                 />
             </div>
             <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center rounded-2xl py-12">
