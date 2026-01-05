@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { collection, query, getDocs, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
 import { useFirestore, useUser } from '@/firebase';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { BarChart, Bot, CheckCircle, Clipboard, ExternalLink, MessageSquare, Star, User, XCircle } from 'lucide-react';
+import { BarChart, Bot, CheckCircle, Clipboard, ExternalLink, MessageSquare, Star, Trash2, User, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
@@ -264,6 +264,20 @@ export default function HistoryPage() {
     toast({ title: 'Copied!', description: 'Content copied to clipboard.' });
   }
 
+  const handleDeleteInterview = async (interviewId: string) => {
+    if (!user || !firestore) return;
+
+    try {
+        const docRef = doc(firestore, 'users', user.uid, 'mock_interviews', interviewId);
+        await deleteDoc(docRef);
+        setInterviews(prev => prev.filter(interview => interview.id !== interviewId));
+        toast({ title: 'Success', description: 'Interview session deleted.' });
+    } catch (error) {
+        console.error("Error deleting interview:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not delete interview session.' });
+    }
+  }
+
   return (
     <>
       <PageHeader
@@ -448,14 +462,28 @@ export default function HistoryPage() {
                     <Accordion type="single" collapsible className="w-full" key={interview.id}>
                         <AccordionItem value={interview.id}>
                             <AccordionTrigger className="text-md font-semibold hover:no-underline text-left p-4 rounded-lg bg-muted/30 border">
-                                <div className="flex flex-col sm:flex-row justify-between items-start w-full gap-2 flex-wrap">
-                                    <div className="flex-grow min-w-0">
-                                        <p className="font-semibold">Final Score: <span className="text-primary">{interview.score}/100</span></p>
-                                        <p className="text-sm text-muted-foreground break-all">For job: {interview.jobDescription}</p>
+                                <div className="flex justify-between items-center w-full gap-4">
+                                    <div className="flex flex-col sm:flex-row justify-between items-start w-full gap-2 flex-wrap">
+                                        <div className="flex-grow min-w-0">
+                                            <p className="font-semibold">Final Score: <span className="text-primary">{interview.score}/100</span></p>
+                                            <p className="text-sm text-muted-foreground break-all">For job: {interview.jobDescription}</p>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground flex-shrink-0 mt-2 sm:mt-0 sm:ml-4">
+                                            {formatDistanceToNow(interview.interviewDate, { addSuffix: true })}
+                                        </p>
                                     </div>
-                                    <p className="text-sm text-muted-foreground flex-shrink-0 mt-2 sm:mt-0 sm:ml-4">
-                                        {formatDistanceToNow(interview.interviewDate, { addSuffix: true })}
-                                    </p>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="text-destructive hover:text-destructive/80 hover:bg-destructive/10"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteInterview(interview.id)
+                                        }}
+                                    >
+                                        <Trash2 className="h-5 w-5" />
+                                        <span className="sr-only">Delete Interview</span>
+                                    </Button>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="p-4 border border-t-0 rounded-b-lg">
