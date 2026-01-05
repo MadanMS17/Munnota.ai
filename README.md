@@ -74,7 +74,7 @@ Follow these instructions to get your local development environment set up and r
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/munnota-ai.git
+git clone [https://github.com/your-username/munnota-ai.git](https://github.com/MadanMS17/Munnota.ai)
 cd munnota-ai
 ```
 
